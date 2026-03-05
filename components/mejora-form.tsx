@@ -43,11 +43,7 @@ const mejoraSchema = z.object({
     fecha_inicio: z.string().optional().or(z.literal("")),
     fecha_termino: z.string().optional().or(z.literal("")),
     impacta_a: z.string().max(200, "Máximo 200 caracteres").optional().or(z.literal("")),
-    costo_beneficio: z.coerce.number().optional(),
-    uso_ia_tecnologia: z.coerce.number().optional(),
-    impacto_satisfaccion_cliente: z.coerce.number().optional(),
-    facilidad_implementacion: z.coerce.number().optional(),
-    escalabilidad: z.coerce.number().optional(),
+
     observaciones: z.string().optional().or(z.literal("")),
     formato_a3: z.string().max(500, "Máximo 500 caracteres").optional().or(z.literal("")),
     imagen: z.string().max(500, "Máximo 500 caracteres").optional().or(z.literal("")),
@@ -76,11 +72,7 @@ export function MejoraForm() {
             fecha_inicio: "",
             fecha_termino: "",
             impacta_a: "",
-            costo_beneficio: 0,
-            uso_ia_tecnologia: 0,
-            impacto_satisfaccion_cliente: 0,
-            facilidad_implementacion: 0,
-            escalabilidad: 0,
+
             observaciones: "",
             formato_a3: "",
             imagen: "",
@@ -366,83 +358,6 @@ export function MejoraForm() {
                                 )}
                             />
 
-                            {/* Evaluación Numérica */}
-                            <div className="col-span-1 md:col-span-2 lg:col-span-3 mt-4">
-                                <h3 className="text-lg font-medium mb-4">Evaluación de la Mejora</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                                    <FormField
-                                        control={form.control}
-                                        name="costo_beneficio"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Costo / Beneficio</FormLabel>
-                                                <FormControl>
-                                                    <Input type="number" step="0.01" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="uso_ia_tecnologia"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Uso de IA / Tecnología</FormLabel>
-                                                <FormControl>
-                                                    <Input type="number" step="0.01" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="impacto_satisfaccion_cliente"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Satisfacción del Cliente</FormLabel>
-                                                <FormControl>
-                                                    <Input type="number" step="0.01" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="facilidad_implementacion"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Facilidad Implementación</FormLabel>
-                                                <FormControl>
-                                                    <Input type="number" step="0.01" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="escalabilidad"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Escalabilidad</FormLabel>
-                                                <FormControl>
-                                                    <Input type="number" step="0.01" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                </div>
-                            </div>
 
                             {/* Archivos y Observaciones */}
                             <FormField
