@@ -6,6 +6,8 @@ import * as z from "zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -111,11 +113,18 @@ export function MejoraForm() {
 
     return (
         <Card className="w-full max-w-4xl mx-auto">
-            <CardHeader>
-                <CardTitle className="text-2xl font-bold">Registrar Nueva Mejora</CardTitle>
-                <CardDescription>
-                    Completa el siguiente formulario para ingresar una propuesta de mejora en el sistema.
-                </CardDescription>
+            <CardHeader className="flex flex-row items-start gap-4 space-y-0">
+                <Link href="/">
+                    <Button variant="outline" size="icon" type="button" className="mt-1">
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                </Link>
+                <div className="grid gap-1">
+                    <CardTitle className="text-2xl font-bold">Registrar Nueva Mejora</CardTitle>
+                    <CardDescription>
+                        Completa el siguiente formulario para ingresar una propuesta de mejora en el sistema.
+                    </CardDescription>
+                </div>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
