@@ -16,7 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target } from "lucide-react"
+import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target, Plus } from "lucide-react"
+import Link from "next/link"
 
 export default function ProposalsPage() {
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
@@ -47,14 +48,14 @@ export default function ProposalsPage() {
 
   const filteredProposals = useMemo(() => {
     return proposals.filter(proposal => {
-      const matchesSearch = searchQuery === "" || 
+      const matchesSearch = searchQuery === "" ||
         proposal.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
         proposal.descripcion.toLowerCase().includes(searchQuery.toLowerCase()) ||
         proposal.codigo.toLowerCase().includes(searchQuery.toLowerCase()) ||
         proposal.quienPropone.toLowerCase().includes(searchQuery.toLowerCase())
-      
+
       const matchesStatus = statusFilter === "all" || proposal.status === statusFilter
-      const matchesProcess = processFilter === "all" || 
+      const matchesProcess = processFilter === "all" ||
         (proposal.proceso && proposal.proceso.toLowerCase().includes(processFilter.toLowerCase()))
 
       return matchesSearch && matchesStatus && matchesProcess
@@ -100,12 +101,18 @@ export default function ProposalsPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-xs px-3 py-1 border-primary/30 text-primary">
+              <Badge variant="outline" className="hidden sm:inline-flex text-xs px-3 py-1 border-primary/30 text-primary">
                 SGI-FOR-55
               </Badge>
-              <Badge className="text-xs px-3 py-1 bg-primary/10 text-primary hover:bg-primary/10">
+              <Badge className="hidden sm:inline-flex text-xs px-3 py-1 bg-primary/10 text-primary hover:bg-primary/10">
                 Rev. 00 | Enero 2026
               </Badge>
+              <Link href="/mejoras/nueva">
+                <Button className="gap-2 shadow-sm rounded-xl">
+                  <Plus className="h-4 w-4" />
+                  Nueva Mejora
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -125,7 +132,7 @@ export default function ProposalsPage() {
                 className="pl-11 h-11 rounded-xl bg-background/50 border-border/50 focus:bg-background transition-colors"
               />
             </div>
-            
+
             <div className="flex flex-wrap gap-3">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[150px] h-11 rounded-xl bg-background/50 border-border/50">
