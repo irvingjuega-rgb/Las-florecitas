@@ -1,4 +1,4 @@
-// app/api/mejoras/route.ts
+//  POST app/api/mejoras/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
 import sql from 'mssql';
@@ -211,3 +211,4 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
   }
 }
+
