@@ -20,11 +20,12 @@ interface RatingDialogProps {
   existingRating?: Rating
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSave: (rating: Omit<Rating, 'totalScore'>) => void
+  onSave: (rating: Omit<Rating, 'totalScore'>) => void | Promise<void>
 }
 
 export function RatingDialog({ proposal, existingRating, open, onOpenChange, onSave }: RatingDialogProps) {
   const { isAuthenticated } = useAuth()
+  const [isSaving, setIsSaving] = useState(false)
   const [ratings, setRatings] = useState({
     costoBeneficio: 5,
     usoIA: 5,
@@ -57,12 +58,21 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
 
   const totalScore = calculateTotalScore(ratings)
 
-  const handleSave = () => {
-    onSave({
-      proposalId: proposal.id,
-      ...ratings,
-    })
-    onOpenChange(false)
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      if (typeof onSave === 'function') {
+        await Promise.resolve(onSave({
+          proposalId: proposal.id,
+          ...ratings,
+        }))
+      }
+      onOpenChange(false)
+    } catch (error) {
+      console.error("Error saving rating:", error)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleReset = () => {
@@ -203,13 +213,17 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
         </div>
 
         <div className="flex justify-between gap-3 pt-2">
-          <Button variant="outline" onClick={handleReset} className="gap-2">
+          <Button variant="outline" onClick={handleReset} className="gap-2" disabled={isSaving}>
             <RotateCcw className="h-4 w-4" />
             Reiniciar
           </Button>
-          <Button onClick={handleSave} className="gap-2">
-            <Save className="h-4 w-4" />
-            Guardar Calificacion
+          <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
+            {isSaving ? (
+              <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            {isSaving ? "Guardando..." : "Guardar Calificacion"}
           </Button>
         </div>
       </DialogContent>
