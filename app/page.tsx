@@ -54,13 +54,19 @@ export default function ProposalsPage() {
         proposal.codigo.toLowerCase().includes(searchQuery.toLowerCase()) ||
         proposal.quienPropone.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesStatus = statusFilter === "all" || proposal.status === statusFilter
+      let matchesStatus = true
+      if (statusFilter === "no_calificados") {
+        matchesStatus = !ratings.some(r => r.proposalId === proposal.id)
+      } else {
+        matchesStatus = statusFilter === "all" || proposal.status === statusFilter
+      }
+
       const matchesProcess = processFilter === "all" ||
         (proposal.proceso && proposal.proceso.toLowerCase().includes(processFilter.toLowerCase()))
 
       return matchesSearch && matchesStatus && matchesProcess
     })
-  }, [searchQuery, statusFilter, processFilter])
+  }, [searchQuery, statusFilter, processFilter, ratings])
 
   const handleCardClick = (proposal: Proposal) => {
     setSelectedProposal(proposal)
@@ -141,6 +147,7 @@ export default function ProposalsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los estados</SelectItem>
+                  <SelectItem value="no_calificados">No calificados</SelectItem>
                   {uniqueStatuses.map(status => (
                     <SelectItem key={status} value={status}>{status}</SelectItem>
                   ))}
