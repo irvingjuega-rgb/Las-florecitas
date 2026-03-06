@@ -6,6 +6,8 @@ import { useRatings } from "@/hooks/use-ratings"
 import { ProposalCard } from "@/components/proposal-card"
 import { RatingDialog } from "@/components/rating-dialog"
 import { StatsCards } from "@/components/stats-cards"
+import { LoginDialog } from "@/components/login-dialog"
+import { useAuth } from "@/contexts/auth-context"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target, Plus } from "lucide-react"
+import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target, Plus, LogIn, LogOut } from "lucide-react"
 import Link from "next/link"
 
 export default function ProposalsPage() {
@@ -26,8 +28,10 @@ export default function ProposalsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [processFilter, setProcessFilter] = useState<string>("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [loginOpen, setLoginOpen] = useState(false)
 
-  const { ratings, isLoaded, saveRating, getRating, clearAllRatings } = useRatings()
+  const { ratings, isLoaded: ratingsLoaded, saveRating, getRating, clearAllRatings } = useRatings()
+  const { isAuthenticated, isLoaded: authLoaded, logout } = useAuth()
 
   const uniqueProcesses = useMemo(() => {
     const processes = new Set<string>()
@@ -81,7 +85,7 @@ export default function ProposalsPage() {
 
   const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all"
 
-  if (!isLoaded) {
+  if (!ratingsLoaded || !authLoaded) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -95,11 +99,11 @@ export default function ProposalsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary/30 via-background to-primary/5">
       <header className="bg-card/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5" >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
-                <Sparkles className="h-6 w-6 text-primary-foreground" />
+              <div className="flex items-center justify-center">
+                <img src="/logo_bioflex__Mesa de trabajo 1.png" alt="icono" className="h-24 w-24 object-contain" style={{ width: "200px" }} />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">Propuestas MC</h1>
@@ -113,12 +117,24 @@ export default function ProposalsPage() {
               <Badge className="hidden sm:inline-flex text-xs px-3 py-1 bg-primary/10 text-primary hover:bg-primary/10">
                 Rev. 00 | Enero 2026
               </Badge>
-              <Link href="/mejoras/nueva">
-                <Button className="gap-2 shadow-sm rounded-xl">
-                  <Plus className="h-4 w-4" />
-                  Nueva Mejora
+              {isAuthenticated ? (
+                <>
+                  <Link href="/mejoras/nueva">
+                    <Button className="gap-2 shadow-sm rounded-xl">
+                      <Plus className="h-4 w-4" />
+                      Nueva Mejora
+                    </Button>
+                  </Link>
+                  <Button variant="outline" size="icon" onClick={logout} className="rounded-xl shadow-sm text-muted-foreground" title="Cerrar sesion">
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" onClick={() => setLoginOpen(true)} className="gap-2 rounded-xl shadow-sm">
+                  <LogIn className="h-4 w-4" />
+                  Ingresar
                 </Button>
-              </Link>
+              )}
             </div>
           </div>
         </div>
@@ -263,6 +279,8 @@ export default function ProposalsPage() {
         onOpenChange={setDialogOpen}
         onSave={saveRating}
       />
+
+      <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} />
     </div>
   )
 }

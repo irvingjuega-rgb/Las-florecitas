@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Proposal, ratingCriteria, Rating, calculateTotalScore } from "@/lib/proposals-data"
+import { useAuth } from "@/contexts/auth-context"
 import { Users, Target, Calendar, Building, CheckCircle2, Lightbulb, Save, RotateCcw, Info } from "lucide-react"
 
 interface RatingDialogProps {
@@ -23,6 +24,7 @@ interface RatingDialogProps {
 }
 
 export function RatingDialog({ proposal, existingRating, open, onOpenChange, onSave }: RatingDialogProps) {
+  const { isAuthenticated } = useAuth()
   const [ratings, setRatings] = useState({
     costoBeneficio: 5,
     usoIA: 5,
@@ -107,11 +109,13 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-3 py-4 text-sm border-y">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="h-4 w-4 text-primary/70" />
-            <span className="font-medium">Propone:</span>
-            <span className="truncate">{proposal.quienPropone}</span>
-          </div>
+          {isAuthenticated && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Users className="h-4 w-4 text-primary/70" />
+              <span className="font-medium">Propone:</span>
+              <span className="truncate">{proposal.quienPropone}</span>
+            </div>
+          )}
           {proposal.proceso && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Target className="h-4 w-4 text-primary/70" />
@@ -171,7 +175,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               </div>
               <Slider
                 value={[ratings[criterion.id as keyof typeof ratings]]}
-                onValueChange={(value) => 
+                onValueChange={(value) =>
                   setRatings(prev => ({ ...prev, [criterion.id]: value[0] }))
                 }
                 min={1}
