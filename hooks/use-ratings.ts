@@ -55,7 +55,8 @@ export function useRatings() {
         // Optimistically update or refetch
         await fetchRatings()
       } else {
-        console.error("Failed to save rating")
+        const errorText = await res.text()
+        console.error("Failed to save rating:", errorText)
       }
     } catch (error) {
       console.error("Error posting rating:", error)
