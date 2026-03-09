@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Proposal, Rating } from "@/lib/proposals-data"
 import { FileText, CheckCircle2, Clock, Star, TrendingUp } from "lucide-react"
+import { GlobalRatingDialog } from "./global-rating-dialog"
 
 interface StatsCardsProps {
   proposals: Proposal[]
@@ -10,13 +12,15 @@ interface StatsCardsProps {
 }
 
 export function StatsCards({ proposals, ratings }: StatsCardsProps) {
+  const [dialogOpen, setDialogOpen] = useState(false)
+
   const totalProposals = proposals.length
   const ratedProposals = ratings.length
   const completedProposals = proposals.filter(p => p.status.toLowerCase() === "terminada").length
-  const inProgressProposals = proposals.filter(p => 
+  const inProgressProposals = proposals.filter(p =>
     ["avanzada", "iniciada"].includes(p.status.toLowerCase())
   ).length
-  
+
   const averageScore = ratings.length > 0
     ? ratings.reduce((sum, r) => sum + r.totalScore, 0) / ratings.length
     : 0
@@ -53,6 +57,7 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       color: "text-amber-500",
       bgColor: "bg-amber-500/10",
       borderColor: "border-amber-500/20",
+      interactive: true,
     },
     {
       label: "Promedio",
@@ -62,29 +67,42 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       bgColor: "bg-primary/10",
       borderColor: "border-primary/20",
       suffix: "/10",
+      interactive: true,
     },
   ]
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-      {stats.map((stat) => (
-        <Card key={stat.label} className={`border ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow`}>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={`h-11 w-11 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {stats.map((stat) => (
+          <Card
+            key={stat.label}
+            className={`border ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm transition-all ${stat.interactive ? 'cursor-pointer hover:shadow-md hover:bg-card/80 hover:-translate-y-0.5' : 'hover:shadow-md'}`}
+            onClick={() => stat.interactive && setDialogOpen(true)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className={`h-11 w-11 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground tabular-nums">
+                    {stat.value}
+                    {stat.suffix && <span className="text-sm font-normal text-muted-foreground">{stat.suffix}</span>}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground tabular-nums">
-                  {stat.value}
-                  {stat.suffix && <span className="text-sm font-normal text-muted-foreground">{stat.suffix}</span>}
-                </p>
-                <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <GlobalRatingDialog
+        ratings={ratings}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
+    </>
   )
 }
