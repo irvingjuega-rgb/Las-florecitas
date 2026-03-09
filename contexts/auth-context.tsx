@@ -27,8 +27,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [])
 
     const login = (usuario: string, contrasena: string) => {
-        // Validacion basica hardcodeada para admin
-        if (usuario === "admin" && contrasena === "admin123") {
+        // Lista de usuarios permitidos (Añade más usuarios aquí)
+        const usuariosPermitidos = [
+            { user: "admin", pass: "admin123" },
+            { user: "agongora", pass: "agongora123" },
+            // Ejemplo de cómo agregar otro usuario:
+            // { user: "nuevo_usuario", pass: "su_contrasena" },
+        ]
+
+        // Verificar si las credenciales existen en la lista
+        const isValid = usuariosPermitidos.some(
+            (u) => u.user === usuario && u.pass === contrasena
+        )
+
+        if (isValid) {
             setIsAuthenticated(true)
             localStorage.setItem(STORAGE_KEY, "true")
             return true

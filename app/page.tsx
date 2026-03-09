@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { proposals, Proposal } from "@/lib/proposals-data"
+import { useState, useMemo, useEffect } from "react"
+import { Proposal } from "@/lib/proposals-data"
 import { useRatings } from "@/hooks/use-ratings"
 import { ProposalCard } from "@/components/proposal-card"
 import { RatingDialog } from "@/components/rating-dialog"
@@ -22,16 +22,59 @@ import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target, Plus, LogIn
 import Link from "next/link"
 
 export default function ProposalsPage() {
+  const [proposals, setProposals] = useState<Proposal[]>([])
+  const [proposalsLoaded, setProposalsLoaded] = useState(false)
+
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [processFilter, setProcessFilter] = useState<string>("all")
+  const [sortBy, setSortBy] = useState<string>("default")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [loginOpen, setLoginOpen] = useState(false)
 
   const { ratings, isLoaded: ratingsLoaded, saveRating, getRating, clearAllRatings } = useRatings()
   const { isAuthenticated, isLoaded: authLoaded, logout } = useAuth()
+
+  useEffect(() => {
+    async function fetchProposals() {
+      try {
+        const response = await fetch('/api/mejoras')
+        if (!response.ok) throw new Error('Error fetching proposals')
+        const data = await response.json()
+
+        // Mapear los datos de SQL a nuestra interfaz de Proposal 
+        // ya que la API puede devolver nombres de columna diferentes
+        if (data.ok && Array.isArray(data.data)) {
+          const mappedProposals: Proposal[] = data.data.map((item: any) => ({
+            id: item.Id?.toString() || "",
+            codigo: item.Codigo || "",
+            titulo: item.Titulo_Mejora || "",
+            quienPropone: item.Quien_Propone || "",
+            descripcion: item.Descripcion_Propuesta || "",
+            equipoMultidisciplinario: item.Equipo_Multidisciplinario || "",
+            factible: item.Factible ? "SI" : "NO",
+            prioridad: item.Prioridad || "",
+            tipo: item.Tipo || "",
+            proceso: item.Proceso || "",
+            status: item.Status || "Pendiente",
+            fechaInicio: item.Fecha_Inicio || "",
+            fechaTermino: item.Fecha_Termino || "",
+            impactaA: item.Impacta_A || "",
+            observaciones: item.Observaciones || ""
+          }))
+          setProposals(mappedProposals)
+        }
+      } catch (error) {
+        console.error("Failed to fetch proposals:", error)
+      } finally {
+        setProposalsLoaded(true)
+      }
+    }
+
+    fetchProposals()
+  }, [])
 
   const uniqueProcesses = useMemo(() => {
     const processes = new Set<string>()
@@ -43,15 +86,15 @@ export default function ProposalsPage() {
       }
     })
     return Array.from(processes).sort()
-  }, [])
+  }, [proposals])
 
   const uniqueStatuses = useMemo(() => {
     const statuses = new Set(proposals.map(p => p.status).filter(Boolean))
     return Array.from(statuses)
-  }, [])
+  }, [proposals])
 
   const filteredProposals = useMemo(() => {
-    return proposals.filter(proposal => {
+    let result = proposals.filter(proposal => {
       const matchesSearch = searchQuery === "" ||
         proposal.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
         proposal.descripcion.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -70,7 +113,20 @@ export default function ProposalsPage() {
 
       return matchesSearch && matchesStatus && matchesProcess
     })
-  }, [searchQuery, statusFilter, processFilter, ratings])
+
+    // Sort logic
+    if (sortBy === "codigo_asc") {
+      result.sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true, sensitivity: 'base' }))
+    } else if (sortBy === "codigo_desc") {
+      result.sort((a, b) => b.codigo.localeCompare(a.codigo, undefined, { numeric: true, sensitivity: 'base' }))
+    } else if (sortBy === "nombre_asc") {
+      result.sort((a, b) => a.titulo.localeCompare(b.titulo))
+    } else if (sortBy === "nombre_desc") {
+      result.sort((a, b) => b.titulo.localeCompare(a.titulo))
+    }
+
+    return result
+  }, [searchQuery, statusFilter, processFilter, ratings, proposals, sortBy])
 
   const handleCardClick = (proposal: Proposal) => {
     setSelectedProposal(proposal)
@@ -81,11 +137,12 @@ export default function ProposalsPage() {
     setSearchQuery("")
     setStatusFilter("all")
     setProcessFilter("all")
+    setSortBy("default")
   }
 
-  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all"
+  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all" || sortBy !== "default"
 
-  if (!ratingsLoaded || !authLoaded) {
+  if (!ratingsLoaded || !authLoaded || !proposalsLoaded) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -156,6 +213,21 @@ export default function ProposalsPage() {
             </div>
 
             <div className="flex flex-wrap gap-3">
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px] h-11 rounded-xl bg-background/50 border-border/50">
+                  <List className="h-4 w-4 mr-2 text-primary" />
+                  <SelectValue placeholder="Ordenar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Por defecto</SelectItem>
+                  <SelectItem value="codigo_asc">Código (A-Z)</SelectItem>
+                  <SelectItem value="codigo_desc">Código (Z-A)</SelectItem>
+                  <SelectItem value="nombre_asc">Nombre (A-Z)</SelectItem>
+                  <SelectItem value="nombre_desc">Nombre (Z-A)</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[150px] h-11 rounded-xl bg-background/50 border-border/50">
                   <Filter className="h-4 w-4 mr-2 text-primary" />

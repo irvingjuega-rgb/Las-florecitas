@@ -113,7 +113,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
           <DialogTitle className="text-xl leading-tight pr-8">
             {proposal.titulo || "Sin titulo"}
           </DialogTitle>
-          <DialogDescription className="text-sm">
+          <DialogDescription className="text-sm text-black-500">
             {proposal.descripcion || "Sin descripcion disponible"}
           </DialogDescription>
         </DialogHeader>
@@ -144,7 +144,23 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-4 w-4 text-primary/70" />
               <span className="font-medium">Inicio:</span>
-              <span>{proposal.fechaInicio}</span>
+              <span>
+                {(() => {
+                  if (!proposal.fechaInicio) return "";
+                  try {
+                    const date = new Date(proposal.fechaInicio);
+                    const timeZoneOffset = date.getTimezoneOffset() * 60000;
+                    const localDate = new Date(date.getTime() + timeZoneOffset);
+                    return localDate.toLocaleDateString('es-MX', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    });
+                  } catch (e) {
+                    return proposal.fechaInicio;
+                  }
+                })()}
+              </span>
             </div>
           )}
           {proposal.impactaA && (

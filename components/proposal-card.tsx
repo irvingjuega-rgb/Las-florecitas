@@ -64,6 +64,25 @@ export function ProposalCard({ proposal, rating, onClick }: ProposalCardProps) {
   const statusStyles = getStatusStyles(proposal.status)
   const { isAuthenticated } = useAuth()
 
+  // Función para formatear la fecha
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      // Ajuste para evitar problemas de zona horaria aislando año, mes y día
+      const timeZoneOffset = date.getTimezoneOffset() * 60000;
+      const localDate = new Date(date.getTime() + timeZoneOffset);
+
+      return localDate.toLocaleDateString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  }
+
   return (
     <Card
       className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/30 group bg-card/80 backdrop-blur-sm border-border/50 overflow-hidden"
@@ -120,7 +139,7 @@ export function ProposalCard({ proposal, rating, onClick }: ProposalCardProps) {
               <div className="h-7 w-7 rounded-lg bg-primary/5 flex items-center justify-center">
                 <Calendar className="h-3.5 w-3.5 text-primary" />
               </div>
-              <span>{proposal.fechaInicio}</span>
+              <span>{formatDate(proposal.fechaInicio)}</span>
             </div>
           )}
         </div>
