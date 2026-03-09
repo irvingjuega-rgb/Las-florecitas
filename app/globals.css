@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0.005 240);
+  --background: oklch(94.655% 0.00345 176.253);
   --foreground: oklch(0.20 0.02 240);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.20 0.02 240);
@@ -122,6 +122,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

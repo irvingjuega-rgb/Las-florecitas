@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Proposal, Rating } from "@/lib/proposals-data"
 import { FileText, CheckCircle2, Clock, Star, TrendingUp } from "lucide-react"
 import { GlobalRatingDialog } from "./global-rating-dialog"
+import { AverageRatingDialog } from "./average-rating-dialog"
 
 interface StatsCardsProps {
   proposals: Proposal[]
@@ -14,6 +15,7 @@ interface StatsCardsProps {
 
 export function StatsCards({ proposals, ratings }: StatsCardsProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [averageDialogOpen, setAverageDialogOpen] = useState(false)
   const { isAuthenticated } = useAuth()
   const totalProposals = proposals.length
   const ratedProposals = ratings.length
@@ -68,6 +70,7 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       bgColor: "bg-primary/10",
       borderColor: "border-primary/20",
       suffix: "/10",
+      interactive: true,
     },
   ]
 
@@ -83,7 +86,11 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
               }`}
             onClick={() => {
               if (stat.interactive && isAuthenticated) {
-                setDialogOpen(true)
+                if (stat.label === "Calificadas") {
+                  setDialogOpen(true)
+                } else if (stat.label === "Promedio") {
+                  setAverageDialogOpen(true)
+                }
               }
             }}
           >
@@ -109,6 +116,11 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       <GlobalRatingDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+      />
+
+      <AverageRatingDialog
+        open={averageDialogOpen}
+        onOpenChange={setAverageDialogOpen}
       />
     </>
   )
