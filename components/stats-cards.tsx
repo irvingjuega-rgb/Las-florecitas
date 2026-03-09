@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent } from "@/components/ui/card"
 import { Proposal, Rating } from "@/lib/proposals-data"
 import { FileText, CheckCircle2, Clock, Star, TrendingUp } from "lucide-react"
@@ -13,7 +14,7 @@ interface StatsCardsProps {
 
 export function StatsCards({ proposals, ratings }: StatsCardsProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
-
+  const { isAuthenticated } = useAuth()
   const totalProposals = proposals.length
   const ratedProposals = ratings.length
   const completedProposals = proposals.filter(p => p.status.toLowerCase() === "terminada").length
@@ -67,7 +68,6 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       bgColor: "bg-primary/10",
       borderColor: "border-primary/20",
       suffix: "/10",
-      interactive: true,
     },
   ]
 
@@ -77,9 +77,17 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className={`border ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm transition-all ${stat.interactive ? 'cursor-pointer hover:shadow-md hover:bg-card/80 hover:-translate-y-0.5' : 'hover:shadow-md'}`}
-            onClick={() => stat.interactive && setDialogOpen(true)}
+            className={`border ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm transition-all ${stat.interactive && isAuthenticated
+              ? 'cursor-pointer hover:shadow-md hover:bg-card/80 hover:-translate-y-0.5'
+              : 'hover:shadow-md'
+              }`}
+            onClick={() => {
+              if (stat.interactive && isAuthenticated) {
+                setDialogOpen(true)
+              }
+            }}
           >
+
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className={`h-11 w-11 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
@@ -99,7 +107,6 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       </div>
 
       <GlobalRatingDialog
-        ratings={ratings}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />

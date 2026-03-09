@@ -75,69 +75,73 @@ export function GlobalRatingDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-6xl w-full max-h-[85vh] bg-card/95 backdrop-blur-xl border-border/50 flex flex-col">
+            <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-4xl lg:max-w-5xl w-full max-h-[90vh] bg-card/95 backdrop-blur-xl border-border/50 flex flex-col p-6 overflow-hidden">
                 <DialogHeader>
-                    <DialogTitle className="text-xl">Detalle de Calificaciones Emitidas</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold tracking-tight">Detalle de Calificaciones Emitidas</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-hidden mt-4">
-                    <ScrollArea className="h-[60vh] border rounded-md">
-                        {loading ? (
-                            <div className="p-8 text-center text-muted-foreground flex flex-col items-center gap-2">
-                                <div className="h-6 w-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                                Cargando registros...
-                            </div>
-                        ) : (
-                            <Table>
-                                <TableHeader className="bg-muted/50 sticky top-0 backdrop-blur-sm z-10">
-                                    <TableRow>
-                                        <TableHead>Propuesta</TableHead>
-                                        <TableHead>Sistema/Dispositivo</TableHead>
-                                        <TableHead>Fecha</TableHead>
-                                        <TableHead className="text-right">Calificación Total</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {details.length === 0 ? (
+                <div className="flex-1 overflow-hidden mt-6">
+                    <ScrollArea className="h-[65vh] w-full border rounded-lg bg-card shadow-sm">
+                        <div className="min-w-[650px] w-full">
+                            {loading ? (
+                                <div className="p-8 text-center text-muted-foreground flex flex-col items-center gap-2">
+                                    <div className="h-6 w-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                                    Cargando registros...
+                                </div>
+                            ) : (
+                                <Table>
+                                    <TableHeader className="bg-muted/50 sticky top-0 backdrop-blur-sm z-10">
                                         <TableRow>
-                                            <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
-                                                No hay calificaciones registradas aún.
-                                            </TableCell>
+                                            <TableHead>Propuesta</TableHead>
+                                            <TableHead>Sistema/Dispositivo</TableHead>
+                                            <TableHead>Fecha</TableHead>
+                                            <TableHead className="text-right">Calificación Total</TableHead>
                                         </TableRow>
-                                    ) : (
-                                        details.map((row, idx) => {
-                                            const total = row.costoBeneficio * 0.20 +
-                                                row.usoIA * 0.30 +
-                                                row.impactoCliente * 0.20 +
-                                                row.facilidadImplementacion * 0.15 +
-                                                row.escalabilidad * 0.15
+                                    </TableHeader>
+                                    <TableBody>
+                                        {details.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                                                    No hay calificaciones registradas aún.
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            details.map((row, idx) => {
+                                                const cb = Number(row.costoBeneficio) || 0;
+                                                const ia = Number(row.usoIA) || 0;
+                                                const ic = Number(row.impactoCliente) || 0;
+                                                const fi = Number(row.facilidadImplementacion) || 0;
+                                                const esc = Number(row.escalabilidad) || 0;
 
-                                            return (
-                                                <TableRow key={idx}>
-                                                    <TableCell className="font-medium">
-                                                        {getProposalName(row.proposalId)}
-                                                    </TableCell>
-                                                    <TableCell className="text-xs max-w-[150px] truncate" title={row.userAgent}>
-                                                        <div className="flex flex-col">
-                                                            <span className="font-semibold">{getDeviceName(row.userAgent)}</span>
-                                                            <span className="text-muted-foreground text-[10px] truncate">
-                                                                IP: {row.ipAddress}
-                                                            </span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                                                        {row.createdAt ? format(new Date(row.createdAt), "d 'de' MMMM, yyyy · HH:mm", { locale: es }) : "—"}
-                                                    </TableCell>
-                                                    <TableCell className="text-right font-bold text-primary text-lg">
-                                                        {total.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 10</span>
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        })
-                                    )}
-                                </TableBody>
-                            </Table>
-                        )}
+                                                const total = cb * 0.20 + ia * 0.30 + ic * 0.20 + fi * 0.15 + esc * 0.15;
+
+                                                return (
+                                                    <TableRow key={idx}>
+                                                        <TableCell className="font-medium">
+                                                            {getProposalName(row.proposalId)}
+                                                        </TableCell>
+                                                        <TableCell className="text-xs max-w-[150px] truncate" title={row.userAgent}>
+                                                            <div className="flex flex-col">
+                                                                <span className="font-semibold">{getDeviceName(row.userAgent)}</span>
+                                                                <span className="text-muted-foreground text-[10px] truncate">
+                                                                    IP: {row.ipAddress}
+                                                                </span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                                                            {row.createdAt ? format(new Date(row.createdAt), "d 'de' MMMM, yyyy · HH:mm", { locale: es }) : "—"}
+                                                        </TableCell>
+                                                        <TableCell className="text-right font-bold text-primary text-lg">
+                                                            {total.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 10</span>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            )}
+                        </div>
                     </ScrollArea>
                 </div>
             </DialogContent>
