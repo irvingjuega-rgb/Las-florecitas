@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
       .input('Observaciones', sql.NVarChar(sql.MAX), body.observaciones ?? null)
       .input('Formato_A3', sql.VarChar(500), body.formato_a3 ?? null)
       .input('Imagen', sql.VarChar(500), body.imagen ?? null)
+      .input('Situacion_Actual', sql.NVarChar(sql.MAX), body.situacion_actual ?? null)
       .query(`
         INSERT INTO dbo.Mejoras (
           Fecha_Entrada, Codigo, Titulo_Mejora, Quien_Propone,
@@ -38,14 +39,14 @@ export async function POST(req: NextRequest) {
           Prioridad, Tipo, Proceso, Status, Fecha_Inicio, Fecha_Termino,
           Impacta_A, Costo_Beneficio, Uso_IA_Tecnologia,
           Impacto_Satisfaccion_Cliente, Facilidad_Implementacion,
-          Escalabilidad, Observaciones, Formato_A3, Imagen
+          Escalabilidad, Observaciones, Formato_A3, Imagen, Situacion_Actual
         ) VALUES (
           @Fecha_Entrada, @Codigo, @Titulo_Mejora, @Quien_Propone,
           @Descripcion_Propuesta, @Equipo_Multidisciplinario, @Factible,
           @Prioridad, @Tipo, @Proceso, @Status, @Fecha_Inicio, @Fecha_Termino,
           @Impacta_A, @Costo_Beneficio, @Uso_IA_Tecnologia,
           @Impacto_Satisfaccion_Cliente, @Facilidad_Implementacion,
-          @Escalabilidad, @Observaciones, @Formato_A3, @Imagen
+          @Escalabilidad, @Observaciones, @Formato_A3, @Imagen, @Situacion_Actual
         )
       `);
 
@@ -142,6 +143,7 @@ export async function PUT(req: NextRequest) {
       .input('Observaciones', sql.NVarChar(sql.MAX), body.observaciones ?? null)
       .input('Formato_A3', sql.VarChar(500), body.formato_a3 ?? null)
       .input('Imagen', sql.VarChar(500), body.imagen ?? null)
+      .input('Situacion_Actual', sql.NVarChar(sql.MAX), body.situacion_actual ?? null)
       .query(`
         UPDATE dbo.Mejoras SET
           Fecha_Entrada                 = @Fecha_Entrada,
@@ -165,7 +167,8 @@ export async function PUT(req: NextRequest) {
           Escalabilidad                 = @Escalabilidad,
           Observaciones                 = @Observaciones,
           Formato_A3                    = @Formato_A3,
-          Imagen                        = @Imagen
+          Imagen                        = @Imagen,
+          Situacion_Actual              = @Situacion_Actual
         WHERE Id = @Id
       `);
 

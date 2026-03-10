@@ -15,6 +15,7 @@ export interface Proposal {
   impactaA: string
   observaciones: string
   visible?: boolean
+  situacionActual?: string
 }
 
 export const proposals: Proposal[] = [

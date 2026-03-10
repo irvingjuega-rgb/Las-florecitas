@@ -126,9 +126,21 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
           {proposal.titulo || "Sin titulo"}
         </h3>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
-          {proposal.descripcion || "Sin descripcion disponible"}
-        </p>
+        {proposal.situacionActual && (
+          <div className="mb-3">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Situación Actual:</span>
+            <p className="text-sm text-foreground line-clamp-2 leading-relaxed">
+              {proposal.situacionActual}
+            </p>
+          </div>
+        )}
+
+        <div className="mb-4">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Propuesta:</span>
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {proposal.descripcion || "Sin descripcion disponible"}
+          </p>
+        </div>
 
         <div className="space-y-2.5">
           {isAuthenticated && (

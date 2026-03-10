@@ -38,6 +38,7 @@ const mejoraSchema = z.object({
     titulo_mejora: z.string().min(1, "Requerido").max(200, "Máximo 200 caracteres"),
     quien_propone: z.string().min(1, "Requerido").max(150, "Máximo 150 caracteres"),
     descripcion_propuesta: z.string().min(1, "Requerido"),
+    situacion_actual: z.string().optional().or(z.literal("")),
     equipo_multidisciplinario: z.string().max(500, "Máximo 500 caracteres").optional().or(z.literal("")),
     factible: z.boolean().default(true),
     prioridad: z.string().min(1, "Requerido"),
@@ -72,6 +73,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
             titulo_mejora: initialData?.titulo || "",
             quien_propone: initialData?.quienPropone || "",
             descripcion_propuesta: initialData?.descripcion || "",
+            situacion_actual: initialData?.situacionActual || "",
             equipo_multidisciplinario: initialData?.equipoMultidisciplinario || "",
             factible: initialData?.factible === "SI",
             prioridad: initialData?.prioridad || "Media",
@@ -213,6 +215,24 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                         <FormControl>
                                             <Textarea
                                                 placeholder="Escribe en qué consiste la mejora..."
+                                                className="min-h-[100px]"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="situacion_actual"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-1 md:col-span-2 lg:col-span-3">
+                                        <FormLabel>Situación Actual o Problemática</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Describe la problemática o la situación que se busca resolver..."
                                                 className="min-h-[100px]"
                                                 {...field}
                                             />

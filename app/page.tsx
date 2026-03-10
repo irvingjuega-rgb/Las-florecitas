@@ -65,6 +65,7 @@ export default function ProposalsPage() {
             fechaTermino: item.Fecha_Termino || "",
             impactaA: item.Impacta_A || "",
             observaciones: item.Observaciones || "",
+            situacionActual: item.Situacion_Actual || "",
             visible: item.Visible !== false
           }))
           setProposals(mappedProposals)
