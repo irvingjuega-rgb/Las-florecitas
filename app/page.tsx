@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target, Plus, LogIn, LogOut, Eye, EyeOff } from "lucide-react"
+import { Search, Filter, LayoutGrid, List, Sparkles, Target, Plus, LogIn, LogOut, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 
 export default function ProposalsPage() {
@@ -35,7 +35,7 @@ export default function ProposalsPage() {
   const [showHidden, setShowHidden] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
 
-  const { ratings, isLoaded: ratingsLoaded, saveRating, getRating, clearAllRatings } = useRatings()
+  const { ratings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings()
   const { isAuthenticated, isLoaded: authLoaded, logout } = useAuth()
 
   useEffect(() => {
@@ -325,17 +325,6 @@ export default function ProposalsPage() {
                 </Button>
               )}
             </div>
-            {ratings.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllRatings}
-                className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
-              >
-                <Trash2 className="h-3 w-3 mr-1" />
-                Limpiar calificaciones
-              </Button>
-            )}
           </div>
         </div>
 

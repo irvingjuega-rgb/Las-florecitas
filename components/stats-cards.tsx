@@ -80,7 +80,7 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className={`border ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm transition-all ${stat.interactive && isAuthenticated
+            className={`border-4 ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm transition-all ${stat.interactive && isAuthenticated
               ? 'cursor-pointer hover:shadow-md hover:bg-card/80 hover:-translate-y-0.5'
               : 'hover:shadow-md'
               }`}

@@ -67,16 +67,11 @@ export function useRatings() {
     return ratings.find(r => r.proposalId === proposalId)
   }, [ratings])
 
-  const clearAllRatings = useCallback(() => {
-    // This is optionally disabled since now the source of truth is the DB
-    console.log("Clear All Ratings has been disabled because data is now served through the DB.")
-  }, [])
 
   return {
     ratings,
     isLoaded,
     saveRating,
-    getRating,
-    clearAllRatings
+    getRating
   }
 }

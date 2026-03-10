@@ -20,21 +20,24 @@ function getStatusStyles(status: string) {
       return {
         bg: "bg-emerald-500/10",
         text: "text-emerald-600",
-        border: "border-emerald-500/20",
+        border: "border-emerald-500/30",
+        hoverBorder: "hover:border-emerald-500",
         dot: "bg-emerald-500"
       }
     case "avanzada":
       return {
         bg: "bg-primary/10",
         text: "text-primary",
-        border: "border-primary/20",
+        border: "border-primary/30",
+        hoverBorder: "hover:border-primary",
         dot: "bg-primary"
       }
     case "iniciada":
       return {
         bg: "bg-amber-500/10",
         text: "text-amber-600",
-        border: "border-amber-500/20",
+        border: "border-amber-500/30",
+        hoverBorder: "hover:border-amber-500",
         dot: "bg-amber-500"
       }
     case "pendiente":
@@ -42,7 +45,8 @@ function getStatusStyles(status: string) {
       return {
         bg: "bg-muted",
         text: "text-muted-foreground",
-        border: "border-muted",
+        border: "border-muted-foreground/30",
+        hoverBorder: "hover:border-muted-foreground/60",
         dot: "bg-muted-foreground"
       }
   }
@@ -87,7 +91,7 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
 
   return (
     <Card
-      className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/30 group bg-card/80 backdrop-blur-sm border-border/50 overflow-hidden ${proposal.visible === false ? 'opacity-60 saturate-50' : ''}`}
+      className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 border-4 ${statusStyles.border} ${statusStyles.hoverBorder} group bg-card/80 backdrop-blur-sm overflow-hidden ${proposal.visible === false ? 'opacity-60 saturate-50' : ''}`}
       onClick={onClick}
     >
       <div className={`h-1 w-full ${statusStyles.dot}`} />
@@ -115,7 +119,7 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
                 {proposal.visible === false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             )}
-            <Badge className={`${statusStyles.bg} ${statusStyles.text} border ${statusStyles.border} flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1`}>
+            <Badge className={`${statusStyles.bg} ${statusStyles.text} flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1`}>
               {getStatusIcon(proposal.status)}
               {proposal.status || "Sin estado"}
             </Badge>

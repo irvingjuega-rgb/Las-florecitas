@@ -96,7 +96,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-mono font-medium text-primary bg-primary/10 px-2 py-1 rounded">
@@ -124,9 +124,22 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
           <DialogTitle className="text-xl leading-tight pr-8">
             {proposal.titulo || "Sin titulo"}
           </DialogTitle>
-          <DialogDescription className="text-sm text-black-500">
-            {proposal.descripcion || "Sin descripcion disponible"}
-          </DialogDescription>
+
+          {proposal.situacionActual && (
+            <div className="mt-4">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Situación Actual:</h4>
+              <DialogDescription className="text-sm text-foreground">
+                {proposal.situacionActual}
+              </DialogDescription>
+            </div>
+          )}
+
+          <div className={proposal.situacionActual ? "mt-4" : "mt-2"}>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Propuesta:</h4>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {proposal.descripcion || "Sin descripcion disponible"}
+            </DialogDescription>
+          </div>
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-3 py-4 text-sm border-y">

@@ -319,7 +319,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                 name="proceso"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Proceso Afectado</FormLabel>
+                                        <FormLabel>Proceso</FormLabel>
                                         <FormControl>
                                             <Input placeholder="Ej. Logística" {...field} />
                                         </FormControl>
