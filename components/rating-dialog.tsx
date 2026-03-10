@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Proposal, ratingCriteria, Rating, calculateTotalScore } from "@/lib/proposals-data"
 import { useAuth } from "@/contexts/auth-context"
-import { Users, Target, Calendar, Building, CheckCircle2, Lightbulb, Save, RotateCcw, Info } from "lucide-react"
+import { Users, Target, Calendar, Building, CheckCircle2, Lightbulb, Save, RotateCcw, Info, Edit } from "lucide-react"
+import Link from "next/link"
 
 interface RatingDialogProps {
   proposal: Proposal | null
@@ -109,6 +110,16 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
             <Badge variant="secondary" className="text-xs">
               {proposal.status}
             </Badge>
+            {isAuthenticated && (
+              <div className="ml-auto">
+                <Link href={`/mejoras/${proposal.id}/editar`}>
+                  <Button variant="outline" size="sm" className="gap-2 h-8 text-xs font-medium">
+                    <Edit className="h-3.5 w-3.5" />
+                    Editar
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
           <DialogTitle className="text-xl leading-tight pr-8">
             {proposal.titulo || "Sin titulo"}
@@ -243,6 +254,6 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   )
 }

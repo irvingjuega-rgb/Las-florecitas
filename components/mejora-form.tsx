@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
+import { Proposal } from "@/lib/proposals-data"
+
 const mejoraSchema = z.object({
     fecha_entrada: z.string().min(1, "Requerido"),
     codigo: z.string().max(50, "Máximo 50 caracteres").optional().or(z.literal("")),
@@ -53,58 +55,70 @@ const mejoraSchema = z.object({
 
 type MejoraFormValues = z.infer<typeof mejoraSchema>
 
-export function MejoraForm() {
+interface MejoraFormProps {
+    initialData?: Proposal
+}
+
+export function MejoraForm({ initialData }: MejoraFormProps = {}) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const isEditing = !!initialData
 
     const form = useForm<MejoraFormValues>({
         resolver: zodResolver(mejoraSchema),
         defaultValues: {
             fecha_entrada: new Date().toISOString().split("T")[0],
-            codigo: "",
-            titulo_mejora: "",
-            quien_propone: "",
-            descripcion_propuesta: "",
-            equipo_multidisciplinario: "",
-            factible: true,
-            prioridad: "Media",
-            tipo: "Mejora",
-            proceso: "",
-            status: "Pendiente",
-            fecha_inicio: "",
-            fecha_termino: "",
-            impacta_a: "",
+            codigo: initialData?.codigo || "",
+            titulo_mejora: initialData?.titulo || "",
+            quien_propone: initialData?.quienPropone || "",
+            descripcion_propuesta: initialData?.descripcion || "",
+            equipo_multidisciplinario: initialData?.equipoMultidisciplinario || "",
+            factible: initialData?.factible === "SI",
+            prioridad: initialData?.prioridad || "Media",
+            tipo: initialData?.tipo || "Mejora",
+            proceso: initialData?.proceso || "",
+            status: initialData?.status || "Pendiente",
+            // Convert to YYYY-MM-DD for date inputs if exists
+            fecha_inicio: initialData?.fechaInicio ? new Date(initialData.fechaInicio).toISOString().split("T")[0] : "",
+            fecha_termino: initialData?.fechaTermino ? new Date(initialData.fechaTermino).toISOString().split("T")[0] : "",
+            impacta_a: initialData?.impactaA || "",
 
-            observaciones: "",
-            formato_a3: "",
-            imagen: "",
+            observaciones: initialData?.observaciones || "",
+            formato_a3: "", // assuming this doesn't come directly from the proposal unless added
+            imagen: "", // assuming this doesn't come directly from the proposal unless added
         },
     })
 
     async function onSubmit(data: MejoraFormValues) {
         setIsLoading(true)
         try {
+            const bodyData = {
+                ...data,
+                fecha_inicio: data.fecha_inicio || null,
+                fecha_termino: data.fecha_termino || null,
+                ...(isEditing && { id: initialData.id })
+            }
+
             const response = await fetch("/api/mejoras", {
-                method: "POST",
+                method: isEditing ? "PUT" : "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    ...data,
-                    fecha_inicio: data.fecha_inicio || null,
-                    fecha_termino: data.fecha_termino || null,
-                }),
+                body: JSON.stringify(bodyData),
             })
 
             if (!response.ok) {
                 throw new Error("Error al enviar los datos")
             }
 
-            toast.success("Mejora registrada correctamente")
-            form.reset()
+            toast.success(isEditing ? "Mejora actualizada correctamente" : "Mejora registrada correctamente")
+            if (!isEditing) {
+                form.reset()
+            }
+            router.push('/')
             router.refresh()
         } catch (error) {
-            toast.error("Hubo un error al registrar la mejora")
+            toast.error("Hubo un error al guardar la mejora")
             console.error(error)
         } finally {
             setIsLoading(false)
