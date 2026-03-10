@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target, Plus, LogIn, LogOut } from "lucide-react"
+import { Search, Filter, LayoutGrid, List, Sparkles, Trash2, Target, Plus, LogIn, LogOut, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 
 export default function ProposalsPage() {
@@ -32,6 +32,7 @@ export default function ProposalsPage() {
   const [processFilter, setProcessFilter] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("default")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [showHidden, setShowHidden] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
 
   const { ratings, isLoaded: ratingsLoaded, saveRating, getRating, clearAllRatings } = useRatings()
@@ -40,7 +41,8 @@ export default function ProposalsPage() {
   useEffect(() => {
     async function fetchProposals() {
       try {
-        const response = await fetch('/api/mejoras')
+        const url = isAuthenticated && showHidden ? '/api/mejoras?includeHidden=true' : '/api/mejoras'
+        const response = await fetch(url)
         if (!response.ok) throw new Error('Error fetching proposals')
         const data = await response.json()
 
@@ -62,7 +64,8 @@ export default function ProposalsPage() {
             fechaInicio: item.Fecha_Inicio || "",
             fechaTermino: item.Fecha_Termino || "",
             impactaA: item.Impacta_A || "",
-            observaciones: item.Observaciones || ""
+            observaciones: item.Observaciones || "",
+            visible: item.Visible !== false
           }))
           setProposals(mappedProposals)
         }
@@ -74,7 +77,7 @@ export default function ProposalsPage() {
     }
 
     fetchProposals()
-  }, [])
+  }, [isAuthenticated, showHidden])
 
   const uniqueProcesses = useMemo(() => {
     const processes = new Set<string>()
@@ -131,6 +134,24 @@ export default function ProposalsPage() {
   const handleCardClick = (proposal: Proposal) => {
     setSelectedProposal(proposal)
     setDialogOpen(true)
+  }
+
+  const handleToggleVisibility = async (e: React.MouseEvent, proposalId: string, currentVisible: boolean) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch(`/api/mejoras?id=${proposalId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ visible: !currentVisible }),
+      });
+      if (response.ok) {
+        setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, visible: !currentVisible } : p));
+      }
+    } catch (error) {
+      console.error("Failed to toggle visibility:", error);
+    }
   }
 
   const clearFilters = () => {
@@ -273,6 +294,17 @@ export default function ProposalsPage() {
                   <List className="h-4 w-4" />
                 </Button>
               </div>
+              {isAuthenticated && (
+                <Button
+                  variant={showHidden ? "secondary" : "outline"}
+                  onClick={() => setShowHidden(!showHidden)}
+                  className="h-11 rounded-xl bg-background/50 text-muted-foreground border-border/50 hidden sm:flex"
+                  title="Ver propuestas ocultas"
+                >
+                  {showHidden ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                  {showHidden ? "Ocultar invisibles" : "Ver ocultas"}
+                </Button>
+              )}
             </div>
           </div>
 
@@ -317,6 +349,7 @@ export default function ProposalsPage() {
               proposal={proposal}
               rating={getRating(proposal.id)}
               onClick={() => handleCardClick(proposal)}
+              onToggleVisibility={isAuthenticated ? (e) => handleToggleVisibility(e, proposal.id, proposal.visible !== false) : undefined}
             />
           ))}
         </div>

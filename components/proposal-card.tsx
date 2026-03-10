@@ -4,12 +4,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Proposal, Rating } from "@/lib/proposals-data"
 import { useAuth } from "@/contexts/auth-context"
-import { Users, Calendar, Target, CheckCircle2, Clock, AlertCircle, Sparkles, Star } from "lucide-react"
+import { Users, Calendar, Target, CheckCircle2, Clock, AlertCircle, Sparkles, Star, Eye, EyeOff } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface ProposalCardProps {
   proposal: Proposal
   rating?: Rating
   onClick: () => void
+  onToggleVisibility?: (e: React.MouseEvent) => void
 }
 
 function getStatusStyles(status: string) {
@@ -60,7 +62,7 @@ function getStatusIcon(status: string) {
   }
 }
 
-export function ProposalCard({ proposal, rating, onClick }: ProposalCardProps) {
+export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: ProposalCardProps) {
   const statusStyles = getStatusStyles(proposal.status)
   const { isAuthenticated } = useAuth()
 
@@ -85,7 +87,7 @@ export function ProposalCard({ proposal, rating, onClick }: ProposalCardProps) {
 
   return (
     <Card
-      className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/30 group bg-card/80 backdrop-blur-sm border-border/50 overflow-hidden"
+      className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/30 group bg-card/80 backdrop-blur-sm border-border/50 overflow-hidden ${proposal.visible === false ? 'opacity-60 saturate-50' : ''}`}
       onClick={onClick}
     >
       <div className={`h-1 w-full ${statusStyles.dot}`} />
@@ -101,10 +103,23 @@ export function ProposalCard({ proposal, rating, onClick }: ProposalCardProps) {
               </Badge>
             )}
           </div>
-          <Badge className={`${statusStyles.bg} ${statusStyles.text} border ${statusStyles.border} flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1`}>
-            {getStatusIcon(proposal.status)}
-            {proposal.status || "Sin estado"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            {onToggleVisibility && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                onClick={onToggleVisibility}
+                title={proposal.visible === false ? "Mostrar propuesta" : "Ocultar propuesta"}
+              >
+                {proposal.visible === false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            )}
+            <Badge className={`${statusStyles.bg} ${statusStyles.text} border ${statusStyles.border} flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1`}>
+              {getStatusIcon(proposal.status)}
+              {proposal.status || "Sin estado"}
+            </Badge>
+          </div>
         </div>
 
         <h3 className="font-semibold text-base leading-snug group-hover:text-primary transition-colors line-clamp-2 mb-3 text-balance">

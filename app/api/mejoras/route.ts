@@ -9,28 +9,28 @@ export async function POST(req: NextRequest) {
     const pool = await getConnection();
 
     await pool.request()
-      .input('Fecha_Entrada',               sql.Date,          body.fecha_entrada)
-      .input('Codigo',                      sql.VarChar(50),   body.codigo)
-      .input('Titulo_Mejora',               sql.VarChar(200),  body.titulo_mejora)
-      .input('Quien_Propone',               sql.VarChar(150),  body.quien_propone)
-      .input('Descripcion_Propuesta',       sql.NVarChar(sql.MAX), body.descripcion_propuesta)
-      .input('Equipo_Multidisciplinario',   sql.NVarChar(500), body.equipo_multidisciplinario)
-      .input('Factible',                    sql.Bit,           body.factible)
-      .input('Prioridad',                   sql.VarChar(20),   body.prioridad)
-      .input('Tipo',                        sql.VarChar(20),   body.tipo)
-      .input('Proceso',                     sql.VarChar(200),  body.proceso)
-      .input('Status',                      sql.VarChar(50),   body.status)
-      .input('Fecha_Inicio',                sql.Date,          body.fecha_inicio)
-      .input('Fecha_Termino',               sql.Date,          body.fecha_termino)
-      .input('Impacta_A',                   sql.VarChar(200),  body.impacta_a)
-      .input('Costo_Beneficio',             sql.Decimal(5,2),  body.costo_beneficio)
-      .input('Uso_IA_Tecnologia',           sql.Decimal(5,2),  body.uso_ia_tecnologia)
-      .input('Impacto_Satisfaccion_Cliente',sql.Decimal(5,2),  body.impacto_satisfaccion_cliente)
-      .input('Facilidad_Implementacion',    sql.Decimal(5,2),  body.facilidad_implementacion)
-      .input('Escalabilidad',               sql.Decimal(5,2),  body.escalabilidad)
-      .input('Observaciones',               sql.NVarChar(sql.MAX), body.observaciones)
-      .input('Formato_A3',                  sql.VarChar(500),  body.formato_a3)
-      .input('Imagen',                      sql.VarChar(500),  body.imagen)
+      .input('Fecha_Entrada', sql.Date, body.fecha_entrada ?? null)
+      .input('Codigo', sql.VarChar(50), body.codigo ?? null)
+      .input('Titulo_Mejora', sql.VarChar(200), body.titulo_mejora ?? null)
+      .input('Quien_Propone', sql.VarChar(150), body.quien_propone ?? null)
+      .input('Descripcion_Propuesta', sql.NVarChar(sql.MAX), body.descripcion_propuesta ?? null)
+      .input('Equipo_Multidisciplinario', sql.NVarChar(500), body.equipo_multidisciplinario ?? null)
+      .input('Factible', sql.Bit, body.factible ?? null)
+      .input('Prioridad', sql.VarChar(20), body.prioridad ?? null)
+      .input('Tipo', sql.VarChar(20), body.tipo ?? null)
+      .input('Proceso', sql.VarChar(200), body.proceso ?? null)
+      .input('Status', sql.VarChar(50), body.status ?? null)
+      .input('Fecha_Inicio', sql.Date, body.fecha_inicio ?? null)
+      .input('Fecha_Termino', sql.Date, body.fecha_termino ?? null)
+      .input('Impacta_A', sql.VarChar(200), body.impacta_a ?? null)
+      .input('Costo_Beneficio', sql.Decimal(5, 2), body.costo_beneficio ?? null)
+      .input('Uso_IA_Tecnologia', sql.Decimal(5, 2), body.uso_ia_tecnologia ?? null)
+      .input('Impacto_Satisfaccion_Cliente', sql.Decimal(5, 2), body.impacto_satisfaccion_cliente ?? null)
+      .input('Facilidad_Implementacion', sql.Decimal(5, 2), body.facilidad_implementacion ?? null)
+      .input('Escalabilidad', sql.Decimal(5, 2), body.escalabilidad ?? null)
+      .input('Observaciones', sql.NVarChar(sql.MAX), body.observaciones ?? null)
+      .input('Formato_A3', sql.VarChar(500), body.formato_a3 ?? null)
+      .input('Imagen', sql.VarChar(500), body.imagen ?? null)
       .query(`
         INSERT INTO dbo.Mejoras (
           Fecha_Entrada, Codigo, Titulo_Mejora, Quien_Propone,
@@ -84,8 +84,14 @@ export async function GET(req: NextRequest) {
     }
 
     // ── Listar todas las mejoras ───────────────
-    const result = await pool.request()
-      .query('SELECT * FROM dbo.Mejoras ORDER BY Fecha_Entrada DESC');
+    const includeHidden = searchParams.get('includeHidden') === 'true';
+    let query = 'SELECT * FROM dbo.Mejoras';
+    if (!includeHidden) {
+      query += ' WHERE Visible = 1 OR Visible IS NULL';
+    }
+    query += ' ORDER BY Fecha_Entrada DESC';
+
+    const result = await pool.request().query(query);
 
     return NextResponse.json({ ok: true, data: result.recordset });
   } catch (error) {
@@ -100,7 +106,8 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
+    const body = await req.json();
+    const id = searchParams.get('id') || body.id;
 
     if (!id) {
       return NextResponse.json(
@@ -109,33 +116,32 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
     const pool = await getConnection();
 
     const result = await pool.request()
-      .input('Id',                           sql.Int,               Number(id))
-      .input('Fecha_Entrada',                sql.Date,              body.fecha_entrada)
-      .input('Codigo',                       sql.VarChar(50),       body.codigo)
-      .input('Titulo_Mejora',                sql.VarChar(200),      body.titulo_mejora)
-      .input('Quien_Propone',                sql.VarChar(150),      body.quien_propone)
-      .input('Descripcion_Propuesta',        sql.NVarChar(sql.MAX), body.descripcion_propuesta)
-      .input('Equipo_Multidisciplinario',    sql.NVarChar(500),     body.equipo_multidisciplinario)
-      .input('Factible',                     sql.Bit,               body.factible)
-      .input('Prioridad',                    sql.VarChar(20),       body.prioridad)
-      .input('Tipo',                         sql.VarChar(20),       body.tipo)
-      .input('Proceso',                      sql.VarChar(200),      body.proceso)
-      .input('Status',                       sql.VarChar(50),       body.status)
-      .input('Fecha_Inicio',                 sql.Date,              body.fecha_inicio)
-      .input('Fecha_Termino',                sql.Date,              body.fecha_termino)
-      .input('Impacta_A',                    sql.VarChar(200),      body.impacta_a)
-      .input('Costo_Beneficio',              sql.Decimal(5, 2),     body.costo_beneficio)
-      .input('Uso_IA_Tecnologia',            sql.Decimal(5, 2),     body.uso_ia_tecnologia)
-      .input('Impacto_Satisfaccion_Cliente', sql.Decimal(5, 2),     body.impacto_satisfaccion_cliente)
-      .input('Facilidad_Implementacion',     sql.Decimal(5, 2),     body.facilidad_implementacion)
-      .input('Escalabilidad',                sql.Decimal(5, 2),     body.escalabilidad)
-      .input('Observaciones',                sql.NVarChar(sql.MAX), body.observaciones)
-      .input('Formato_A3',                   sql.VarChar(500),      body.formato_a3)
-      .input('Imagen',                       sql.VarChar(500),      body.imagen)
+      .input('Id', sql.Int, Number(id))
+      .input('Fecha_Entrada', sql.Date, body.fecha_entrada ?? null)
+      .input('Codigo', sql.VarChar(50), body.codigo ?? null)
+      .input('Titulo_Mejora', sql.VarChar(200), body.titulo_mejora ?? null)
+      .input('Quien_Propone', sql.VarChar(150), body.quien_propone ?? null)
+      .input('Descripcion_Propuesta', sql.NVarChar(sql.MAX), body.descripcion_propuesta ?? null)
+      .input('Equipo_Multidisciplinario', sql.NVarChar(500), body.equipo_multidisciplinario ?? null)
+      .input('Factible', sql.Bit, body.factible ?? null)
+      .input('Prioridad', sql.VarChar(20), body.prioridad ?? null)
+      .input('Tipo', sql.VarChar(20), body.tipo ?? null)
+      .input('Proceso', sql.VarChar(200), body.proceso ?? null)
+      .input('Status', sql.VarChar(50), body.status ?? null)
+      .input('Fecha_Inicio', sql.Date, body.fecha_inicio ?? null)
+      .input('Fecha_Termino', sql.Date, body.fecha_termino ?? null)
+      .input('Impacta_A', sql.VarChar(200), body.impacta_a ?? null)
+      .input('Costo_Beneficio', sql.Decimal(5, 2), body.costo_beneficio ?? null)
+      .input('Uso_IA_Tecnologia', sql.Decimal(5, 2), body.uso_ia_tecnologia ?? null)
+      .input('Impacto_Satisfaccion_Cliente', sql.Decimal(5, 2), body.impacto_satisfaccion_cliente ?? null)
+      .input('Facilidad_Implementacion', sql.Decimal(5, 2), body.facilidad_implementacion ?? null)
+      .input('Escalabilidad', sql.Decimal(5, 2), body.escalabilidad ?? null)
+      .input('Observaciones', sql.NVarChar(sql.MAX), body.observaciones ?? null)
+      .input('Formato_A3', sql.VarChar(500), body.formato_a3 ?? null)
+      .input('Imagen', sql.VarChar(500), body.imagen ?? null)
       .query(`
         UPDATE dbo.Mejoras SET
           Fecha_Entrada                 = @Fecha_Entrada,
@@ -208,6 +214,52 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Mejora eliminada correctamente' });
   } catch (error) {
     console.error('Error al eliminar mejora:', error);
+    return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
+  }
+}
+
+// ─────────────────────────────────────────────
+// PATCH  /api/mejoras?id=123  → Toggle visibilidad (Soft Delete)
+// ─────────────────────────────────────────────
+export async function PATCH(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { ok: false, error: 'Se requiere el parámetro id' },
+        { status: 400 }
+      );
+    }
+
+    const body = await req.json();
+    const visible = body.visible;
+
+    if (visible === undefined || visible === null) {
+      return NextResponse.json(
+        { ok: false, error: 'Se requiere el campo visible en el cuerpo de la petición' },
+        { status: 400 }
+      );
+    }
+
+    const pool = await getConnection();
+
+    const result = await pool.request()
+      .input('Id', sql.Int, Number(id))
+      .input('Visible', sql.Bit, visible ? 1 : 0)
+      .query('UPDATE dbo.Mejoras SET Visible = @Visible WHERE Id = @Id');
+
+    if (result.rowsAffected[0] === 0) {
+      return NextResponse.json(
+        { ok: false, error: 'Mejora no encontrada' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ ok: true, message: 'Visibilidad actualizada correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar visibilidad:', error);
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
   }
 }

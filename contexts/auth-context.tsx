@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const usuariosPermitidos = [
             { user: "admin", pass: "admin123" },
             { user: "agongora", pass: "agongora123" },
+
             // Ejemplo de cómo agregar otro usuario:
             // { user: "nuevo_usuario", pass: "su_contrasena" },
         ]

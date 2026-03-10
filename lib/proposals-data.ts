@@ -14,6 +14,7 @@ export interface Proposal {
   fechaTermino: string
   impactaA: string
   observaciones: string
+  visible?: boolean
 }
 
 export const proposals: Proposal[] = [

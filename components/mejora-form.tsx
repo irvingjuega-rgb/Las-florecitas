@@ -99,7 +99,8 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                 ...(isEditing && { id: initialData.id })
             }
 
-            const response = await fetch("/api/mejoras", {
+            const url = isEditing ? `/api/mejoras?id=${initialData.id}` : "/api/mejoras"
+            const response = await fetch(url, {
                 method: isEditing ? "PUT" : "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -108,7 +109,8 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
             })
 
             if (!response.ok) {
-                throw new Error("Error al enviar los datos")
+                const errData = await response.json().catch(() => null)
+                throw new Error(errData?.error || "Error al enviar los datos")
             }
 
             toast.success(isEditing ? "Mejora actualizada correctamente" : "Mejora registrada correctamente")
@@ -118,7 +120,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
             router.push('/')
             router.refresh()
         } catch (error) {
-            toast.error("Hubo un error al guardar la mejora")
+            toast.error(error instanceof Error ? error.message : "Hubo un error al guardar la mejora")
             console.error(error)
         } finally {
             setIsLoading(false)
