@@ -64,9 +64,7 @@ export async function GET(req: NextRequest) {
 
     // Retorna todos los registros agrupados (promedios) por MejoraId
     const result = await pool.request().query(`
-...
-
-      SELECT 
+      SELECT
         CAST(MejoraId AS VARCHAR) as proposalId,
         AVG(CAST(Costo_Beneficio as FLOAT)) as costoBeneficio,
         AVG(CAST(Uso_IA_Tecnologia as FLOAT)) as usoIA,

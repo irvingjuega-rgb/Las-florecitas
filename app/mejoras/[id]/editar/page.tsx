@@ -1,46 +1,46 @@
 import { Metadata } from "next"
 import { MejoraForm } from "@/components/mejora-form"
 import { Proposal } from "@/lib/proposals-data"
+import { getConnection } from "@/lib/db"
+import sql from "mssql"
 
 export const metadata: Metadata = {
     title: "Editar Mejora | Bioflex TI",
     description: "Formulario para editar una propuesta de mejora existente.",
 }
 
-// Function to fetch the proposal data in a server component
+// Function to fetch the proposal data directly from DB (avoids self-HTTP fetch issues on IIS)
 async function getProposal(id: string): Promise<Proposal | null> {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-        const res = await fetch(`${baseUrl}/api/mejoras`, { cache: 'no-store' });
-        if (!res.ok) return null;
-        const json = await res.json();
+        const pool = await getConnection()
+        const result = await pool.request()
+            .input('Id', sql.Int, Number(id))
+            .query('SELECT * FROM dbo.Mejoras WHERE Id = @Id')
 
-        if (json.ok && Array.isArray(json.data)) {
-            const rawProposal = json.data.find((item: any) => item.Id?.toString() === id);
-            if (!rawProposal) return null;
+        if (result.recordset.length === 0) return null;
+        const rawProposal = result.recordset[0];
 
-            return {
-                id: rawProposal.Id?.toString() || "",
-                codigo: rawProposal.Codigo || "",
-                titulo: rawProposal.Titulo_Mejora || "",
-                quienPropone: rawProposal.Quien_Propone || "",
-                descripcion: rawProposal.Descripcion_Propuesta || "",
-                equipoMultidisciplinario: rawProposal.Equipo_Multidisciplinario || "",
-                factible: rawProposal.Factible ? "SI" : "NO",
-                prioridad: rawProposal.Prioridad || "",
-                tipo: rawProposal.Tipo || "",
-                proceso: rawProposal.Proceso || "",
-                status: rawProposal.Status || "Pendiente",
-                fechaEntrada: rawProposal.Fecha_Entrada || "",
-                fechaInicio: rawProposal.Fecha_Inicio || "",
-                fechaTermino: rawProposal.Fecha_Termino || "",
-                impactaA: rawProposal.Impacta_A || "",
-                observaciones: rawProposal.Observaciones || "",
-                situacionActual: rawProposal.Situacion_Actual || "",
-                imagen: rawProposal.Imagen || "",
-                formatoA3: rawProposal.Formato_A3 || "",
-            };
-        }
+        return {
+            id: rawProposal.Id?.toString() || "",
+            codigo: rawProposal.Codigo || "",
+            titulo: rawProposal.Titulo_Mejora || "",
+            quienPropone: rawProposal.Quien_Propone || "",
+            descripcion: rawProposal.Descripcion_Propuesta || "",
+            equipoMultidisciplinario: rawProposal.Equipo_Multidisciplinario || "",
+            factible: rawProposal.Factible ? "SI" : "NO",
+            prioridad: rawProposal.Prioridad || "",
+            tipo: rawProposal.Tipo || "",
+            proceso: rawProposal.Proceso || "",
+            status: rawProposal.Status || "Pendiente",
+            fechaEntrada: rawProposal.Fecha_Entrada || "",
+            fechaInicio: rawProposal.Fecha_Inicio || "",
+            fechaTermino: rawProposal.Fecha_Termino || "",
+            impactaA: rawProposal.Impacta_A || "",
+            observaciones: rawProposal.Observaciones || "",
+            situacionActual: rawProposal.Situacion_Actual || "",
+            imagen: rawProposal.Imagen || "",
+            formatoA3: rawProposal.Formato_A3 || "",
+        };
     } catch (error) {
         console.error("Error fetching proposal details:", error);
     }
