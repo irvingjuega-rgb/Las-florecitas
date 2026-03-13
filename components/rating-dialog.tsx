@@ -11,10 +11,17 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
-import { Proposal, ratingCriteria, Rating, calculateTotalScore, getProposalImageUrl } from "@/lib/proposals-data"
+import { Proposal, ratingCriteria, Rating, calculateTotalScore, getProposalImages } from "@/lib/proposals-data"
 import { useAuth } from "@/contexts/auth-context"
-import { Users, Target, Calendar, Building, CheckCircle2, Lightbulb, Save, RotateCcw, Info, Edit } from "lucide-react"
+import { Users, Target, Calendar, Building, CheckCircle2, Lightbulb, Save, RotateCcw, Info, Edit, Maximize2, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 interface RatingDialogProps {
   proposal: Proposal | null
@@ -27,6 +34,7 @@ interface RatingDialogProps {
 export function RatingDialog({ proposal, existingRating, open, onOpenChange, onSave }: RatingDialogProps) {
   const { isAuthenticated } = useAuth()
   const [isSaving, setIsSaving] = useState(false)
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const [ratings, setRatings] = useState({
     costoBeneficio: 5,
     usoIA: 5,
@@ -58,7 +66,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
   if (!proposal) return null
 
   const totalScore = calculateTotalScore(ratings)
-  const imageUrl = getProposalImageUrl(proposal.imagen)
+  const images = getProposalImages(proposal.imagen)
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -96,65 +104,117 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono font-medium text-primary bg-primary/10 px-2 py-1 rounded">
-              {proposal.codigo}
-            </span>
-            {proposal.tipo && (
-              <Badge variant="outline" className="text-xs">
-                {proposal.tipo}
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-mono font-medium text-primary bg-primary/10 px-2 py-1 rounded">
+                {proposal.codigo}
+              </span>
+              {proposal.tipo && (
+                <Badge variant="outline" className="text-xs">
+                  {proposal.tipo}
+                </Badge>
+              )}
+              <Badge variant="secondary" className="text-xs">
+                {proposal.status}
               </Badge>
-            )}
-            <Badge variant="secondary" className="text-xs">
-              {proposal.status}
-            </Badge>
-            {isAuthenticated && (
-              <div className="ml-auto">
-                <Link href={`/mejoras/${proposal.id}/editar`}>
-                  <Button variant="outline" size="sm" className="gap-2 h-8 text-xs font-medium">
-                    <Edit className="h-3.5 w-3.5" />
-                    Editar
-                  </Button>
-                </Link>
+              {isAuthenticated && (
+                <div className="ml-auto">
+                  <Link href={`/mejoras/${proposal.id}/editar`}>
+                    <Button variant="outline" size="sm" className="gap-2 h-8 text-xs font-medium">
+                      <Edit className="h-3.5 w-3.5" />
+                      Editar
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+            <DialogTitle className="text-xl leading-tight pr-8">
+              {proposal.titulo || "Sin titulo"}
+            </DialogTitle>
+
+            {proposal.situacionActual && (
+              <div className="mt-4">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Situación Actual:</h4>
+                <DialogDescription className="text-sm text-foreground">
+                  {proposal.situacionActual}
+                </DialogDescription>
               </div>
             )}
-          </div>
-          <DialogTitle className="text-xl leading-tight pr-8">
-            {proposal.titulo || "Sin titulo"}
-          </DialogTitle>
 
-          {proposal.situacionActual && (
-            <div className="mt-4">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Situación Actual:</h4>
-              <DialogDescription className="text-sm text-foreground">
-                {proposal.situacionActual}
+            <div className={proposal.situacionActual ? "mt-4" : "mt-2"}>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Propuesta:</h4>
+              <DialogDescription className="text-sm text-muted-foreground">
+                {proposal.descripcion || "Sin descripcion disponible"}
               </DialogDescription>
             </div>
-          )}
 
-          <div className={proposal.situacionActual ? "mt-4" : "mt-2"}>
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Propuesta:</h4>
-            <DialogDescription className="text-sm text-muted-foreground">
-              {proposal.descripcion || "Sin descripcion disponible"}
-            </DialogDescription>
-          </div>
-
-          {imageUrl && (
-            <div className="mt-4">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Imagen de respaldo:</h4>
-              <div className="overflow-hidden rounded-xl border bg-muted/20">
-                <img
-                  src={imageUrl}
-                  alt={`Imagen de la propuesta ${proposal.codigo}`}
-                  className="max-h-80 w-full object-contain bg-background"
-                />
+            {images.length > 0 && (
+              <div className="mt-4">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Imágenes de respaldo:</h4>
+                <div className="relative group">
+                  {images.length === 1 ? (
+                    <div
+                      className="relative overflow-hidden rounded-xl border bg-muted/20 cursor-pointer"
+                      onClick={() => setZoomedImage(images[0])}
+                    >
+                      <img
+                        src={images[0]}
+                        alt={`Imagen de la propuesta ${proposal.codigo}`}
+                        className="max-h-80 w-full object-contain bg-background"
+                      />
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="h-8 w-8 bg-black/50 hover:bg-black/70 text-white border-none shadow-lg"
+                        >
+                          <Maximize2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Carousel className="w-full">
+                      <CarouselContent>
+                        {images.map((img, index) => (
+                          <CarouselItem key={index}>
+                            <div
+                              className="relative overflow-hidden rounded-xl border bg-muted/20 cursor-pointer"
+                              onClick={() => setZoomedImage(img)}
+                            >
+                              <img
+                                src={img}
+                                alt={`Imagen ${index + 1} de la propuesta ${proposal.codigo}`}
+                                className="max-h-80 w-full object-contain bg-background"
+                              />
+                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  variant="secondary"
+                                  size="icon"
+                                  className="h-8 w-8 bg-black/50 hover:bg-black/70 text-white border-none shadow-lg"
+                                >
+                                  <Maximize2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <div className="flex items-center justify-center gap-2 mt-2">
+                        <CarouselPrevious className="relative left-0 translate-y-0 h-8 w-8" />
+                        <span className="text-xs text-muted-foreground font-medium">
+                          Gallería de {images.length} imágenes
+                        </span>
+                        <CarouselNext className="relative right-0 translate-y-0 h-8 w-8" />
+                      </div>
+                    </Carousel>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </DialogHeader>
+            )}
+          </DialogHeader>
 
         <div className="grid grid-cols-2 gap-3 py-4 text-sm border-y">
           {isAuthenticated && (
@@ -282,5 +342,34 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
         </div>
       </DialogContent>
     </Dialog >
+
+    <Dialog open={!!zoomedImage} onOpenChange={(open) => !open && setZoomedImage(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden border-none bg-transparent shadow-none flex items-center justify-center">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Vista ampliada de imagen</DialogTitle>
+            <DialogDescription>
+              Imagen de respaldo de la propuesta {proposal.codigo}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative w-full h-full flex items-center justify-center group">
+            {zoomedImage && (
+              <img
+                src={zoomedImage}
+                alt="Imagen ampliada"
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              />
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 h-10 w-10 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md transition-all"
+              onClick={() => setZoomedImage(null)}
+            >
+              <Maximize2 className="h-5 w-5 rotate-45" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

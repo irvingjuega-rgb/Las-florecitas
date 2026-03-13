@@ -6,7 +6,7 @@ import * as z from "zod"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, X, Plus, Image as ImageIcon, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { Proposal, PROPOSAL_STATUSES, getProposalImageUrl } from "@/lib/proposals-data"
+import { Proposal, PROPOSAL_STATUSES, getProposalImageUrl, getProposalImages } from "@/lib/proposals-data"
 
 const mejoraSchema = z.object({
     fecha_entrada: z.string().min(1, "Requerido"),
@@ -96,7 +96,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
     })
 
     const currentImageValue = form.watch("imagen")
-    const currentImageUrl = getProposalImageUrl(currentImageValue)
+    const images = getProposalImages(currentImageValue)
 
     async function handleImageUpload(file: File) {
         setIsUploadingImage(true)
@@ -114,7 +114,13 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                 throw new Error(result?.error || "No se pudo subir la imagen")
             }
 
-            form.setValue("imagen", result.data.filename, {
+            const newFilename = result.data.filename
+            const currentImages = form.getValues("imagen")
+            const updatedImages = currentImages 
+                ? `${currentImages},${newFilename}` 
+                : newFilename
+
+            form.setValue("imagen", updatedImages, {
                 shouldDirty: true,
                 shouldTouch: true,
                 shouldValidate: true,
@@ -125,6 +131,17 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
         } finally {
             setIsUploadingImage(false)
         }
+    }
+
+    const removeImage = (indexToRemove: number) => {
+        const currentImages = form.getValues("imagen").split(',').map(img => img.trim()).filter(Boolean)
+        const updatedImages = currentImages.filter((_, index) => index !== indexToRemove).join(',')
+        
+        form.setValue("imagen", updatedImages, {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+        })
     }
 
     async function onSubmit(data: MejoraFormValues) {
@@ -501,38 +518,65 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                 name="imagen"
                                 render={({ field }) => (
                                     <FormItem className="col-span-1 md:col-span-2 lg:col-span-3">
-                                        <FormLabel>Imagen de Respaldo</FormLabel>
-                                        <div className="space-y-3">
-                                            <Input
-                                                type="file"
-                                                accept="image/*"
-                                                disabled={isLoading || isUploadingImage}
-                                                onChange={async (event) => {
-                                                    const file = event.target.files?.[0]
-                                                    if (!file) return
-                                                    await handleImageUpload(file)
-                                                    event.target.value = ""
-                                                }}
-                                            />
+                                        <FormLabel>Imágenes de Respaldo</FormLabel>
+                                        <div className="space-y-4">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                                {images.map((url, index) => (
+                                                    <div key={index} className="relative group aspect-square rounded-xl border bg-muted/20 overflow-hidden">
+                                                        <img
+                                                            src={url}
+                                                            alt={`Imagen ${index + 1}`}
+                                                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeImage(index)}
+                                                            className="absolute top-1 right-1 h-6 w-6 rounded-full bg-destructive/80 text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-destructive"
+                                                        >
+                                                            <X className="h-3 w-3" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                
+                                                <label className={`
+                                                    relative flex flex-col items-center justify-center aspect-square rounded-xl border-2 border-dashed 
+                                                    cursor-pointer transition-colors hover:bg-muted/50 hover:border-primary/50
+                                                    ${isUploadingImage ? 'opacity-50 cursor-not-allowed' : ''}
+                                                `}>
+                                                    {isUploadingImage ? (
+                                                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                                    ) : (
+                                                        <>
+                                                            <Plus className="h-6 w-6 text-muted-foreground mb-1" />
+                                                            <span className="text-[10px] font-medium text-muted-foreground uppercase">Añadir</span>
+                                                        </>
+                                                    )}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="sr-only"
+                                                        disabled={isLoading || isUploadingImage}
+                                                        onChange={async (event) => {
+                                                            const file = event.target.files?.[0]
+                                                            if (!file) return
+                                                            await handleImageUpload(file)
+                                                            event.target.value = ""
+                                                        }}
+                                                    />
+                                                </label>
+                                            </div>
+
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Nombre del archivo o URL"
+                                                    placeholder="Nombres de archivos o URLs (separados por coma)"
                                                     {...field}
                                                     value={field.value ?? ""}
                                                 />
                                             </FormControl>
-                                            {currentImageUrl && (
-                                                <div className="rounded-lg border bg-muted/20 p-3">
-                                                    <p className="text-sm font-medium mb-2">Vista previa</p>
-                                                    <img
-                                                        src={currentImageUrl}
-                                                        alt="Vista previa de la imagen de la propuesta"
-                                                        className="max-h-72 w-full rounded-md object-contain bg-background"
-                                                    />
-                                                </div>
-                                            )}
-                                            <p className="text-sm text-muted-foreground">
-                                                {isUploadingImage ? "Subiendo imagen..." : "Puedes subir un archivo o pegar una URL existente."}
+                                            
+                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                                <ImageIcon className="h-4 w-4" />
+                                                {isUploadingImage ? "Subiendo imagen..." : "Puedes subir varios archivos o pegar URLs separadas por coma."}
                                             </p>
                                         </div>
                                         <FormMessage />

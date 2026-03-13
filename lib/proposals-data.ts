@@ -30,6 +30,11 @@ export function getProposalImageUrl(imageValue?: string) {
   return `/api/imagenes?filename=${encodeURIComponent(imageValue)}`
 }
 
+export function getProposalImages(imageValue?: string): string[] {
+  if (!imageValue) return []
+  return imageValue.split(',').map(img => img.trim()).filter(Boolean).map(getProposalImageUrl)
+}
+
 export const PROPOSAL_STATUSES = [
   "Pendiente",
   "Iniciada",

@@ -2,9 +2,9 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Proposal, Rating } from "@/lib/proposals-data"
+import { Proposal, Rating, getProposalImages } from "@/lib/proposals-data"
 import { useAuth } from "@/contexts/auth-context"
-import { Users, Calendar, Target, CheckCircle2, Clock, AlertCircle, Sparkles, Star, Eye, EyeOff } from "lucide-react"
+import { Users, Calendar, Target, CheckCircle2, Clock, AlertCircle, Sparkles, Star, Eye, EyeOff, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface ProposalCardProps {
@@ -73,6 +73,7 @@ function getStatusIcon(status: string) {
 export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: ProposalCardProps) {
   const statusStyles = getStatusStyles(proposal.status)
   const { isAuthenticated } = useAuth()
+  const images = getProposalImages(proposal.imagen)
 
   // Función para formatear la fecha
   const formatDate = (dateString: string) => {
@@ -133,6 +134,32 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
         <h3 className="font-semibold text-base leading-snug group-hover:text-primary transition-colors line-clamp-2 mb-3 text-balance">
           {proposal.titulo || "Sin titulo"}
         </h3>
+
+        {images.length > 0 && (
+          <div className="flex gap-2 mb-3 overflow-hidden">
+            {images.slice(0, 3).map((img, idx) => (
+              <div 
+                key={idx} 
+                className={`relative rounded-lg overflow-hidden border bg-muted/20 ${
+                  images.length === 1 ? 'w-full aspect-video h-24' : 
+                  images.length === 2 ? 'w-1/2 aspect-square h-20' : 
+                  'w-1/3 aspect-square h-16'
+                }`}
+              >
+                <img 
+                  src={img} 
+                  alt={`${proposal.titulo} ${idx + 1}`}
+                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                />
+                {idx === 2 && images.length > 3 && (
+                  <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center text-white text-[10px] font-bold">
+                    +{images.length - 3}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {proposal.situacionActual && (
           <div className="mb-3">
