@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
-import { Proposal, ratingCriteria, Rating, calculateTotalScore } from "@/lib/proposals-data"
+import { Proposal, ratingCriteria, Rating, calculateTotalScore, getProposalImageUrl } from "@/lib/proposals-data"
 import { useAuth } from "@/contexts/auth-context"
 import { Users, Target, Calendar, Building, CheckCircle2, Lightbulb, Save, RotateCcw, Info, Edit } from "lucide-react"
 import Link from "next/link"
@@ -58,6 +58,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
   if (!proposal) return null
 
   const totalScore = calculateTotalScore(ratings)
+  const imageUrl = getProposalImageUrl(proposal.imagen)
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -140,6 +141,19 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               {proposal.descripcion || "Sin descripcion disponible"}
             </DialogDescription>
           </div>
+
+          {imageUrl && (
+            <div className="mt-4">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Imagen de respaldo:</h4>
+              <div className="overflow-hidden rounded-xl border bg-muted/20">
+                <img
+                  src={imageUrl}
+                  alt={`Imagen de la propuesta ${proposal.codigo}`}
+                  className="max-h-80 w-full object-contain bg-background"
+                />
+              </div>
+            </div>
+          )}
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-3 py-4 text-sm border-y">

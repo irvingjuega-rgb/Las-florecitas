@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { Proposal, PROPOSAL_STATUSES } from "@/lib/proposals-data"
+import { Proposal, PROPOSAL_STATUSES, getProposalImageUrl } from "@/lib/proposals-data"
 
 const mejoraSchema = z.object({
     fecha_entrada: z.string().min(1, "Requerido"),
@@ -63,6 +63,7 @@ interface MejoraFormProps {
 export function MejoraForm({ initialData }: MejoraFormProps = {}) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const [isUploadingImage, setIsUploadingImage] = useState(false)
     const [mounted, setMounted] = useState(false)
     const isEditing = !!initialData
 
@@ -89,10 +90,42 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
             fecha_termino: initialData?.fechaTermino ? new Date(initialData.fechaTermino).toISOString().split("T")[0] : "",
             impacta_a: initialData?.impactaA || "",
             observaciones: initialData?.observaciones || "",
-            formato_a3: "",
-            imagen: "",
+            formato_a3: initialData?.formatoA3 || "",
+            imagen: initialData?.imagen || "",
         },
     })
+
+    const currentImageValue = form.watch("imagen")
+    const currentImageUrl = getProposalImageUrl(currentImageValue)
+
+    async function handleImageUpload(file: File) {
+        setIsUploadingImage(true)
+        try {
+            const formData = new FormData()
+            formData.append("file", file)
+
+            const response = await fetch("/api/imagenes", {
+                method: "POST",
+                body: formData,
+            })
+
+            const result = await response.json()
+            if (!response.ok || !result.ok) {
+                throw new Error(result?.error || "No se pudo subir la imagen")
+            }
+
+            form.setValue("imagen", result.data.filename, {
+                shouldDirty: true,
+                shouldTouch: true,
+                shouldValidate: true,
+            })
+            toast.success("Imagen subida correctamente")
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "No se pudo subir la imagen")
+        } finally {
+            setIsUploadingImage(false)
+        }
+    }
 
     async function onSubmit(data: MejoraFormValues) {
         setIsLoading(true)
@@ -468,10 +501,40 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                 name="imagen"
                                 render={({ field }) => (
                                     <FormItem className="col-span-1 md:col-span-2 lg:col-span-3">
-                                        <FormLabel>URL de la Imagen de Respaldo</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="https://..." {...field} />
-                                        </FormControl>
+                                        <FormLabel>Imagen de Respaldo</FormLabel>
+                                        <div className="space-y-3">
+                                            <Input
+                                                type="file"
+                                                accept="image/*"
+                                                disabled={isLoading || isUploadingImage}
+                                                onChange={async (event) => {
+                                                    const file = event.target.files?.[0]
+                                                    if (!file) return
+                                                    await handleImageUpload(file)
+                                                    event.target.value = ""
+                                                }}
+                                            />
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Nombre del archivo o URL"
+                                                    {...field}
+                                                    value={field.value ?? ""}
+                                                />
+                                            </FormControl>
+                                            {currentImageUrl && (
+                                                <div className="rounded-lg border bg-muted/20 p-3">
+                                                    <p className="text-sm font-medium mb-2">Vista previa</p>
+                                                    <img
+                                                        src={currentImageUrl}
+                                                        alt="Vista previa de la imagen de la propuesta"
+                                                        className="max-h-72 w-full rounded-md object-contain bg-background"
+                                                    />
+                                                </div>
+                                            )}
+                                            <p className="text-sm text-muted-foreground">
+                                                {isUploadingImage ? "Subiendo imagen..." : "Puedes subir un archivo o pegar una URL existente."}
+                                            </p>
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -481,7 +544,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
 
                         <div className="flex justify-end mt-6">
                             <Button type="submit" disabled={isLoading}>
-                                {isLoading ? "Enviando..." : "Registrar Mejora"}
+                                {isLoading ? "Enviando..." : isEditing ? "Actualizar Mejora" : "Registrar Mejora"}
                             </Button>
                         </div>
                     </form>

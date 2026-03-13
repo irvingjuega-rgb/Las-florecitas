@@ -31,10 +31,14 @@ async function getProposal(id: string): Promise<Proposal | null> {
                 tipo: rawProposal.Tipo || "",
                 proceso: rawProposal.Proceso || "",
                 status: rawProposal.Status || "Pendiente",
+                fechaEntrada: rawProposal.Fecha_Entrada || "",
                 fechaInicio: rawProposal.Fecha_Inicio || "",
                 fechaTermino: rawProposal.Fecha_Termino || "",
                 impactaA: rawProposal.Impacta_A || "",
-                observaciones: rawProposal.Observaciones || ""
+                observaciones: rawProposal.Observaciones || "",
+                situacionActual: rawProposal.Situacion_Actual || "",
+                imagen: rawProposal.Imagen || "",
+                formatoA3: rawProposal.Formato_A3 || "",
             };
         }
     } catch (error) {

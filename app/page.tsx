@@ -65,11 +65,14 @@ export default function ProposalsPage() {
             tipo: item.Tipo || "",
             proceso: item.Proceso || "",
             status: item.Status || "Pendiente",
+            fechaEntrada: item.Fecha_Entrada || "",
             fechaInicio: item.Fecha_Inicio || "",
             fechaTermino: item.Fecha_Termino || "",
             impactaA: item.Impacta_A || "",
             observaciones: item.Observaciones || "",
             situacionActual: item.Situacion_Actual || "",
+            imagen: item.Imagen || "",
+            formatoA3: item.Formato_A3 || "",
             visible: item.Visible !== false
           }))
           setProposals(mappedProposals)

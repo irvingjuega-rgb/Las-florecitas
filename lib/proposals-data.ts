@@ -12,10 +12,22 @@ export interface Proposal {
   status: string
   fechaInicio: string
   fechaTermino: string
+  fechaEntrada?: string
   impactaA: string
   observaciones: string
   visible?: boolean
   situacionActual?: string
+  imagen?: string
+  formatoA3?: string
+}
+
+export function getProposalImageUrl(imageValue?: string) {
+  if (!imageValue) return ""
+  if (imageValue.startsWith("http://") || imageValue.startsWith("https://") || imageValue.startsWith("/")) {
+    return imageValue
+  }
+
+  return `/api/imagenes?filename=${encodeURIComponent(imageValue)}`
 }
 
 export const PROPOSAL_STATUSES = [
