@@ -11,11 +11,17 @@ export function useRatings() {
 
   const fetchRatings = useCallback(async () => {
     try {
-      const res = await fetch("/api/calificaciones")
+      const res = await fetch(`/api/calificaciones?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache'
+        }
+      })
       if (res.ok) {
         const { data, isMock } = await res.json()
 
-        if ((!data || data.length === 0) && (isMock || process.env.NODE_ENV === 'development')) {
+        if ((!data || data.length === 0) && isMock) {
           // Generar calificaciones de prueba si estamos en modo demo y no hay datos
           const generatedRatings: Rating[] = mockProposals.slice(0, 10).map(p => {
             const r = {
@@ -34,7 +40,7 @@ export function useRatings() {
           setRatings(generatedRatings)
         } else {
           // Transform the DB averages back to the Rating format
-          const formattedRatings: Rating[] = data.map((row: any) => {
+          const formattedRatings: Rating[] = Array.isArray(data) ? data.map((row: any) => {
             const ratingObj = {
               proposalId: row.proposalId,
               costoBeneficio: row.costoBeneficio || 5,
@@ -47,7 +53,7 @@ export function useRatings() {
               ...ratingObj,
               totalScore: calculateTotalScore(ratingObj as any)
             }
-          })
+          }) : []
           setRatings(formattedRatings)
         }
       }

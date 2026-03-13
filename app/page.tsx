@@ -42,8 +42,17 @@ export default function ProposalsPage() {
   useEffect(() => {
     async function fetchProposals() {
       try {
-        const url = isAuthenticated && showHidden ? '/api/mejoras?includeHidden=true' : '/api/mejoras'
-        const response = await fetch(url)
+        const timestamp = Date.now()
+        const baseUrl = isAuthenticated && showHidden ? '/api/mejoras?includeHidden=true' : '/api/mejoras'
+        const url = baseUrl.includes('?') ? `${baseUrl}&t=${timestamp}` : `${baseUrl}?t=${timestamp}`
+
+        const response = await fetch(url, {
+          cache: 'no-store',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+          }
+        })
         if (!response.ok) throw new Error('Error fetching proposals')
         const data = await response.json()
 
