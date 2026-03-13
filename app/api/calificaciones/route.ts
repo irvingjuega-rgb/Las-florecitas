@@ -52,13 +52,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 })
   }
 }
-
 export async function GET(req: NextRequest) {
   try {
-    const pool = await getConnection()
+    let pool;
+    try {
+      pool = await getConnection();
+    } catch (connErr) {
+      console.warn('⚠️ Base de datos no disponible. Usando datos vacios para GET /api/calificaciones');
+      return NextResponse.json({ ok: true, data: [], isMock: true });
+    }
 
     // Retorna todos los registros agrupados (promedios) por MejoraId
     const result = await pool.request().query(`
+...
+
       SELECT 
         CAST(MejoraId AS VARCHAR) as proposalId,
         AVG(CAST(Costo_Beneficio as FLOAT)) as costoBeneficio,

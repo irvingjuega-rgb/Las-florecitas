@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ArrowLeft } from "lucide-react"
@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { Proposal } from "@/lib/proposals-data"
+import { Proposal, PROPOSAL_STATUSES } from "@/lib/proposals-data"
 
 const mejoraSchema = z.object({
     fecha_entrada: z.string().min(1, "Requerido"),
@@ -63,31 +63,34 @@ interface MejoraFormProps {
 export function MejoraForm({ initialData }: MejoraFormProps = {}) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const [mounted, setMounted] = useState(false)
     const isEditing = !!initialData
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const form = useForm<MejoraFormValues>({
         resolver: zodResolver(mejoraSchema),
         defaultValues: {
-            fecha_entrada: new Date().toISOString().split("T")[0],
+            fecha_entrada: initialData?.fechaEntrada ? new Date(initialData.fechaEntrada).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
             codigo: initialData?.codigo || "",
             titulo_mejora: initialData?.titulo || "",
             quien_propone: initialData?.quienPropone || "",
             descripcion_propuesta: initialData?.descripcion || "",
             situacion_actual: initialData?.situacionActual || "",
             equipo_multidisciplinario: initialData?.equipoMultidisciplinario || "",
-            factible: initialData?.factible === "SI",
+            factible: initialData ? initialData.factible === "SI" : true,
             prioridad: initialData?.prioridad || "Media",
             tipo: initialData?.tipo || "Mejora",
             proceso: initialData?.proceso || "",
             status: initialData?.status || "Pendiente",
-            // Convert to YYYY-MM-DD for date inputs if exists
             fecha_inicio: initialData?.fechaInicio ? new Date(initialData.fechaInicio).toISOString().split("T")[0] : "",
             fecha_termino: initialData?.fechaTermino ? new Date(initialData.fechaTermino).toISOString().split("T")[0] : "",
             impacta_a: initialData?.impactaA || "",
-
             observaciones: initialData?.observaciones || "",
-            formato_a3: "", // assuming this doesn't come directly from the proposal unless added
-            imagen: "", // assuming this doesn't come directly from the proposal unless added
+            formato_a3: "",
+            imagen: "",
         },
     })
 
@@ -127,6 +130,32 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    if (!mounted) {
+        return (
+            <Card className="w-full max-w-4xl mx-auto">
+                <CardHeader className="flex flex-row items-start gap-4 space-y-0">
+                    <div className="h-10 w-10 rounded-md bg-muted animate-pulse" />
+                    <div className="grid gap-1 flex-1">
+                        <div className="h-8 w-1/3 bg-muted animate-pulse rounded" />
+                        <div className="h-4 w-2/3 bg-muted animate-pulse rounded" />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {[...Array(9)].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="h-4 w-1/2 bg-muted animate-pulse rounded" />
+                                    <div className="h-10 w-full bg-muted animate-pulse rounded" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        )
     }
 
     return (
@@ -303,10 +332,11 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="Pendiente">Pendiente</SelectItem>
-                                                <SelectItem value="En Proceso">En Proceso</SelectItem>
-                                                <SelectItem value="Completado">Completado</SelectItem>
-                                                <SelectItem value="Cancelado">Cancelado</SelectItem>
+                                                {PROPOSAL_STATUSES.map(status => (
+                                                    <SelectItem key={status} value={status}>
+                                                        {status}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />

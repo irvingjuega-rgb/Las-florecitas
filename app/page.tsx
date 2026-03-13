@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Proposal } from "@/lib/proposals-data"
+import { Proposal, PROPOSAL_STATUSES } from "@/lib/proposals-data"
 import { useRatings } from "@/hooks/use-ratings"
 import { ProposalCard } from "@/components/proposal-card"
 import { RatingDialog } from "@/components/rating-dialog"
@@ -34,6 +34,7 @@ export default function ProposalsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showHidden, setShowHidden] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
+  const [isMock, setIsMock] = useState(false)
 
   const { ratings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings()
   const { isAuthenticated, isLoaded: authLoaded, logout } = useAuth()
@@ -45,6 +46,9 @@ export default function ProposalsPage() {
         const response = await fetch(url)
         if (!response.ok) throw new Error('Error fetching proposals')
         const data = await response.json()
+
+        if (data.isMock) setIsMock(true)
+        else setIsMock(false)
 
         // Mapear los datos de SQL a nuestra interfaz de Proposal 
         // ya que la API puede devolver nombres de columna diferentes
@@ -90,11 +94,6 @@ export default function ProposalsPage() {
       }
     })
     return Array.from(processes).sort()
-  }, [proposals])
-
-  const uniqueStatuses = useMemo(() => {
-    const statuses = new Set(proposals.map(p => p.status).filter(Boolean))
-    return Array.from(statuses)
   }, [proposals])
 
   const filteredProposals = useMemo(() => {
@@ -177,19 +176,27 @@ export default function ProposalsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary/30 via-background to-primary/5">
-      <header className="bg-card/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-10">
+      <header className="bg-card/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50">
+        {isMock && (
+          <div className="bg-amber-500/10 border-b border-amber-500/20 py-2 px-4 text-center">
+            <p className="text-sm font-medium text-amber-600 flex items-center justify-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              Modo de demostración: La base de datos no está disponible, mostrando datos de prueba locales.
+            </p>
+          </div>
+        )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5" >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center">
-                <img src="/logo_bioflex__Mesa de trabajo 1.png" alt="icono" className="h-24 w-24 object-contain" style={{ width: "200px" }} />
+                <img src="/logo_bioflex__Mesa de trabajo 1.png" alt="icono" className="h-20 w-auto object-contain" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">Propuestas MC</h1>
                 <p className="text-sm text-muted-foreground">Sistema de Evaluacion de Mejora Continua</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 relative z-50 pointer-events-auto">
               <Badge variant="outline" className="hidden sm:inline-flex text-xs px-3 py-1 border-primary/30 text-primary">
                 SGI-FOR-55
               </Badge>
@@ -198,12 +205,13 @@ export default function ProposalsPage() {
               </Badge>
               {isAuthenticated ? (
                 <>
-                  <Link href="/mejoras/nueva">
-                    <Button className="gap-2 shadow-sm rounded-xl">
-                      <Plus className="h-4 w-4" />
-                      Nueva Mejora
-                    </Button>
-                  </Link>
+                  <Button 
+                    onClick={() => window.location.assign("/mejoras/nueva")} 
+                    className="gap-2 shadow-sm rounded-xl"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nueva Mejora
+                  </Button>
                   <Button variant="outline" size="icon" onClick={logout} className="rounded-xl shadow-sm text-muted-foreground" title="Cerrar sesion">
                     <LogOut className="h-4 w-4" />
                   </Button>
@@ -258,7 +266,7 @@ export default function ProposalsPage() {
                 <SelectContent>
                   <SelectItem value="all">Todos los estados</SelectItem>
                   <SelectItem value="no_calificados">No calificados</SelectItem>
-                  {uniqueStatuses.map(status => (
+                  {PROPOSAL_STATUSES.map(status => (
                     <SelectItem key={status} value={status}>{status}</SelectItem>
                   ))}
                 </SelectContent>

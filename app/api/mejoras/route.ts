@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
 import sql from 'mssql';
+import { proposals } from '@/lib/proposals-data';
 
 export async function POST(req: NextRequest) {
   try {
@@ -66,7 +67,23 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    const pool = await getConnection();
+    
+    let pool;
+    try {
+      pool = await getConnection();
+    } catch (connErr) {
+      console.warn('⚠️ Base de datos no disponible. Usando datos mock para GET /api/mejoras');
+      
+      if (id) {
+        const mockItem = proposals.find(p => p.id === id);
+        if (!mockItem) return NextResponse.json({ ok: false, error: 'Mejora no encontrada (Mock)' }, { status: 404 });
+        return NextResponse.json({ ok: true, data: mockItem });
+      }
+      
+      const includeHidden = searchParams.get('includeHidden') === 'true';
+      const mockData = includeHidden ? proposals : proposals.filter(p => p.visible !== false);
+      return NextResponse.json({ ok: true, data: mockData, isMock: true });
+    }
 
     if (id) {
       // ── Obtener una mejora por ID ──────────────

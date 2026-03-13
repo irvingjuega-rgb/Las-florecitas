@@ -18,6 +18,13 @@ let pool: sql.ConnectionPool | null = null;
 
 export async function getConnection() {
   if (pool) return pool;
-  pool = await sql.connect(config);
-  return pool;
+  console.log('Connecting to SQL Server:', config.server, config.options?.instanceName);
+  try {
+    pool = await sql.connect(config);
+    console.log('Connected to SQL Server successfully');
+    return pool;
+  } catch (err) {
+    console.error('Error connecting to SQL Server:', err);
+    throw err;
+  }
 }

@@ -18,6 +18,13 @@ export interface Proposal {
   situacionActual?: string
 }
 
+export const PROPOSAL_STATUSES = [
+  "Pendiente",
+  "Iniciada",
+  "Avanzada",
+  "Terminada"
+]
+
 export const proposals: Proposal[] = [
   {
     id: "1",

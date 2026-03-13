@@ -22,15 +22,17 @@ function getStatusStyles(status: string) {
         text: "text-emerald-600",
         border: "border-emerald-500/30",
         hoverBorder: "hover:border-emerald-500",
-        dot: "bg-emerald-500"
+        dot: "bg-emerald-500",
+        separator: "border-emerald-500/20"
       }
     case "avanzada":
       return {
-        bg: "bg-primary/10",
-        text: "text-primary",
-        border: "border-primary/30",
-        hoverBorder: "hover:border-primary",
-        dot: "bg-primary"
+        bg: "bg-blue-500/10",
+        text: "text-blue-600",
+        border: "border-blue-500/30",
+        hoverBorder: "hover:border-blue-500",
+        dot: "bg-blue-500",
+        separator: "border-blue-500/20"
       }
     case "iniciada":
       return {
@@ -38,16 +40,18 @@ function getStatusStyles(status: string) {
         text: "text-amber-600",
         border: "border-amber-500/30",
         hoverBorder: "hover:border-amber-500",
-        dot: "bg-amber-500"
+        dot: "bg-amber-500",
+        separator: "border-amber-500/20"
       }
     case "pendiente":
     default:
       return {
-        bg: "bg-muted",
-        text: "text-muted-foreground",
-        border: "border-muted-foreground/30",
-        hoverBorder: "hover:border-muted-foreground/60",
-        dot: "bg-muted-foreground"
+        bg: "bg-slate-500/10",
+        text: "text-slate-600",
+        border: "border-slate-500/30",
+        hoverBorder: "hover:border-slate-500/60",
+        dot: "bg-slate-500",
+        separator: "border-slate-500/20"
       }
   }
 }
@@ -176,7 +180,7 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
         </div>
 
         {rating && (
-          <div className="mt-4 pt-4 border-t border-border/50">
+          <div className={`mt-4 pt-4 border-t ${statusStyles.separator}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
