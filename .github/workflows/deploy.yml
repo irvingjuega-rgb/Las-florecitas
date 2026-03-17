@@ -26,7 +26,8 @@ jobs:
           robocopy $sourcePath $destinationPath /MIR /V /NP /XD node_modules .git .github /XF .env .env.local web.config
           if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
         shell: powershell
-   - name: Restart App with PM2
+
+      - name: Restart App with PM2
         run: |
           $env:PM2_HOME = "C:\PM2"
 
