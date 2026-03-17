@@ -36,7 +36,7 @@ jobs:
           if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
         shell: powershell
 
-     - name: Restart App with PM2
+      - name: Restart App with PM2
         run: |
           # 1. Usamos la ruta de PM2 con permisos de Servicio de Red
           $env:PM2_HOME = "C:\PM2"
