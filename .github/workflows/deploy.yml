@@ -36,21 +36,20 @@ jobs:
           if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
         shell: powershell
 
-      - name: Restart App with PM2
+     - name: Restart App with PM2
         run: |
           # 1. Usamos la ruta de PM2 con permisos de Servicio de Red
           $env:PM2_HOME = "C:\PM2"
           
-          # 2. Entramos a la carpeta para usar el ecosystem.config.js
+          # 2. Entramos a la carpeta del proyecto
           cd "C:\inetpub\wwwroot\Rating de propuestas MC"
 
-          # 3. Intentamos borrar y empezar limpio para evitar procesos duplicados
-          # El '|| echo' evita que el deploy falle si la app no existe aún
-          npx pm2 delete "mejoras-calidad" || echo "App no encontrada, iniciando limpia..."
+          # 3. Intentamos borrar. El 'ErrorAction SilentlyContinue' evita que el paso falle si la app no existe
+          npx pm2 delete "mejoras-calidad" --anticonflict 2>$null
           
-          # 4. Iniciamos usando el archivo de configuración
+          # 4. Iniciamos de cero con el config
           npx pm2 start ecosystem.config.js
           
-          # 5. Guardamos para el próximo reinicio del server
+          # 5. Guardamos
           npx pm2 save
         shell: powershell
