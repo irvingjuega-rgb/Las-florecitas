@@ -30,7 +30,7 @@ export default function ProposalsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [processFilter, setProcessFilter] = useState<string>("all")
-  const [sortBy, setSortBy] = useState<string>("codigo_desc")
+  const [sortBy, setSortBy] = useState<string>("codigo_asc")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showHidden, setShowHidden] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
@@ -170,10 +170,10 @@ export default function ProposalsPage() {
     setSearchQuery("")
     setStatusFilter("all")
     setProcessFilter("all")
-    setSortBy("codigo_desc")
+    setSortBy("codigo_asc")
   }
 
-  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all" || sortBy !== "codigo_desc"
+  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all" || sortBy !== "codigo_asc"
 
   if (!ratingsLoaded || !authLoaded || !proposalsLoaded) {
     return (
@@ -262,8 +262,8 @@ export default function ProposalsPage() {
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="codigo_desc">Código (Descendente)</SelectItem>
                   <SelectItem value="codigo_asc">Código (Ascendente)</SelectItem>
+                  <SelectItem value="codigo_desc">Código (Descendente)</SelectItem>
                   <SelectItem value="tipo_asc">Tipo (A-Z)</SelectItem>
                   <SelectItem value="tipo_desc">Tipo (Z-A)</SelectItem>
                 </SelectContent>
