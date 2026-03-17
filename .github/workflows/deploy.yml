@@ -2,7 +2,7 @@ name: Deploy Next.js MejorasMango
 
 on:
   push:
-    branches: [ "main" ] # Verifica si tu rama es main o master
+    branches: [ "main" ] # Verifica si tu rama es main o master kkk
 
 jobs:
   deploy:
