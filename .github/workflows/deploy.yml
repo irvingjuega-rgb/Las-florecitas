@@ -1,13 +1,10 @@
 name: Deploy Next.js MejorasMango
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   deploy:
     runs-on: self-hosted
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,32 +23,23 @@ jobs:
         run: |
           $sourcePath = "."
           $destinationPath = "C:\inetpub\wwwroot\Rating de propuestas MC"
-          
-          # Mantenemos protegidos tus archivos locales del server
           robocopy $sourcePath $destinationPath /MIR /V /NP /XD node_modules .git .github /XF .env .env.local web.config
-          
           if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
         shell: powershell
 
       - name: Restart App with PM2
         run: |
-          # 1. Definimos la casa de PM2
           $env:PM2_HOME = "C:\PM2"
 
-          # 2. LIMPIEZA DE PROCESOS: Matamos a Node para liberar el socket (rpc.sock)
-          # El '2>$null' es para que no marque error si no hay nada que matar
-          taskkill /F /IM node.exe /T 2>$null
-          
-          # Esperamos 2 segundos a que Windows suelte los archivos
+          # Matar node sin explotar si no hay procesos corriendo
+          taskkill /F /IM node.exe /T 2>&1 | Out-Null
+
           Start-Sleep -s 2
 
-          # 3. Entramos a la carpeta y levantamos con el config
           cd "C:\inetpub\wwwroot\Rating de propuestas MC"
-          
-          # Intentamos borrar la instancia vieja (si existe) y lanzamos la nueva
-          npx pm2 delete "mejoras-calidad" 2>$null
+
+          # Borrar instancia vieja sin explotar si no existe
+          npx pm2 delete "mejoras-calidad" 2>&1 | Out-Null
           npx pm2 start ecosystem.config.js
-          
-          # 4. Guardamos para que el Servicio de Red lo recuerde siempre
           npx pm2 save
         shell: powershell
