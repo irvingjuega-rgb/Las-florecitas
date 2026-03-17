@@ -1,13 +1,10 @@
 name: Deploy Next.js MejorasMango
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   deploy:
     runs-on: self-hosted
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -15,7 +12,6 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install -g pnpm pm2
-          # Usamos --no-frozen-lockfile por si agregaste mssql en la Mac
           npx pnpm install --no-frozen-lockfile
         shell: powershell
 
@@ -27,29 +23,26 @@ jobs:
         run: |
           $sourcePath = "."
           $destinationPath = "C:\inetpub\wwwroot\Rating de propuestas MC"
-          
-          # EXCLUSIONES CLAVE:
-          # /XD -> Carpetas excluidas
-          # /XF -> Archivos excluidos (Aquí protegemos tu web.config y .env.local)
           robocopy $sourcePath $destinationPath /MIR /V /NP /XD node_modules .git .github /XF .env .env.local web.config
-          
           if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
         shell: powershell
 
       - name: Restart App with PM2
         run: |
-          # 1. Usamos la ruta de PM2 con permisos de Servicio de Red
           $env:PM2_HOME = "C:\PM2"
-          
-          # 2. Entramos a la carpeta del proyecto
+
+          $ErrorActionPreference = "SilentlyContinue"
+          & taskkill /F /IM node.exe /T | Out-Null
+          $ErrorActionPreference = "Stop"
+
+          Start-Sleep -s 2
+
           cd "C:\inetpub\wwwroot\Rating de propuestas MC"
 
-          # 3. Intentamos borrar. El 'ErrorAction SilentlyContinue' evita que el paso falle si la app no existe
-          npx pm2 delete "mejoras-calidad" --anticonflict 2>$null
-          
-          # 4. Iniciamos de cero con el config
+          $ErrorActionPreference = "SilentlyContinue"
+          npx pm2 delete "mejoras-calidad" | Out-Null
+          $ErrorActionPreference = "Stop"
+
           npx pm2 start ecosystem.config.js
-          
-          # 5. Guardamos
           npx pm2 save
         shell: powershell
