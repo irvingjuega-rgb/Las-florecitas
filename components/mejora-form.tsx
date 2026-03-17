@@ -83,7 +83,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
             equipo_multidisciplinario: initialData?.equipoMultidisciplinario || "",
             factible: initialData ? initialData.factible === "SI" : true,
             prioridad: initialData?.prioridad || "Media",
-            tipo: initialData?.tipo || "Mejora",
+            tipo: initialData?.tipo || "Mejora Tecnologica",
             proceso: initialData?.proceso || "",
             status: initialData?.status || "Pendiente",
             fecha_inicio: initialData?.fechaInicio ? new Date(initialData.fechaInicio).toISOString().split("T")[0] : "",
@@ -116,8 +116,8 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
 
             const newFilename = result.data.filename
             const currentImages = form.getValues("imagen")
-            const updatedImages = currentImages 
-                ? `${currentImages},${newFilename}` 
+            const updatedImages = currentImages
+                ? `${currentImages},${newFilename}`
                 : newFilename
 
             form.setValue("imagen", updatedImages, {
@@ -134,9 +134,10 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
     }
 
     const removeImage = (indexToRemove: number) => {
-        const currentImages = form.getValues("imagen").split(',').map(img => img.trim()).filter(Boolean)
+        const currentImagesString = form.getValues("imagen") || "";
+        const currentImages = currentImagesString.split(',').map(img => img.trim()).filter(Boolean)
         const updatedImages = currentImages.filter((_, index) => index !== indexToRemove).join(',')
-        
+
         form.setValue("imagen", updatedImages, {
             shouldDirty: true,
             shouldTouch: true,
@@ -359,9 +360,8 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="Preventiva">Preventiva</SelectItem>
-                                                <SelectItem value="Correctiva">Correctiva</SelectItem>
-                                                <SelectItem value="Mejora">Mejora Innovación</SelectItem>
+                                                <SelectItem value="Mejora Tecnologica">Mejora Tecnologica</SelectItem>
+                                                <SelectItem value="Mejora Operativa">Mejora Operativa</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
@@ -537,7 +537,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                                         </button>
                                                     </div>
                                                 ))}
-                                                
+
                                                 <label className={`
                                                     relative flex flex-col items-center justify-center aspect-square rounded-xl border-2 border-dashed 
                                                     cursor-pointer transition-colors hover:bg-muted/50 hover:border-primary/50
@@ -573,7 +573,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                                     value={field.value ?? ""}
                                                 />
                                             </FormControl>
-                                            
+
                                             <p className="text-sm text-muted-foreground flex items-center gap-2">
                                                 <ImageIcon className="h-4 w-4" />
                                                 {isUploadingImage ? "Subiendo imagen..." : "Puedes subir varios archivos o pegar URLs separadas por coma."}

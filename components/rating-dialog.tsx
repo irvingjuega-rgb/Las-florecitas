@@ -217,13 +217,11 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
           </DialogHeader>
 
         <div className="grid grid-cols-2 gap-3 py-4 text-sm border-y">
-          {isAuthenticated && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Users className="h-4 w-4 text-primary/70" />
-              <span className="font-medium">Propone:</span>
-              <span className="truncate">{proposal.quienPropone}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Users className="h-4 w-4 text-primary/70" />
+            <span className="font-medium">Propone:</span>
+            <span className="truncate">{proposal.quienPropone}</span>
+          </div>
           {proposal.proceso && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Target className="h-4 w-4 text-primary/70" />

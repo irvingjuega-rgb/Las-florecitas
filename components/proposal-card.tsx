@@ -178,14 +178,12 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
         </div>
 
         <div className="space-y-2.5">
-          {isAuthenticated && (
-            <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-              <div className="h-7 w-7 rounded-lg bg-primary/5 flex items-center justify-center">
-                <Users className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <span className="truncate font-medium">{proposal.quienPropone}</span>
+          <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+            <div className="h-7 w-7 rounded-lg bg-primary/5 flex items-center justify-center">
+              <Users className="h-3.5 w-3.5 text-primary" />
             </div>
-          )}
+            <span className="truncate font-medium">{proposal.quienPropone}</span>
+          </div>
 
           {proposal.proceso && (
             <div className="flex items-center gap-2.5 text-sm text-muted-foreground">

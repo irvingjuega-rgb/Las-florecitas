@@ -471,11 +471,11 @@ export const proposals: Proposal[] = [
 ]
 
 export const ratingCriteria = [
-  { id: "costoBeneficio", label: "Costo-Beneficio", weight: 0.20 },
-  { id: "usoIA", label: "Uso de IA y Tecnologia", weight: 0.30 },
-  { id: "impactoCliente", label: "Impacto en Satisfaccion al Cliente", weight: 0.20 },
-  { id: "facilidadImplementacion", label: "Facilidad de Implementacion", weight: 0.15 },
+  { id: "usoIA", label: "Uso de IA y Tecnologia", weight: 0.35 },
+  { id: "impactoCliente", label: "Impacto en Satisfaccion al Cliente", weight: 0.25 },
   { id: "escalabilidad", label: "Escalabilidad", weight: 0.15 },
+  { id: "facilidadImplementacion", label: "Facilidad de Implementacion", weight: 0.15 },
+  { id: "costoBeneficio", label: "Costo-Beneficio", weight: 0.10 },
 ]
 
 export interface Rating {
@@ -490,10 +490,11 @@ export interface Rating {
 
 export function calculateTotalScore(ratings: Omit<Rating, 'proposalId' | 'totalScore'>): number {
   return (
-    ratings.costoBeneficio * 0.20 +
-    ratings.usoIA * 0.30 +
-    ratings.impactoCliente * 0.20 +
+    ratings.usoIA * 0.35 +
+    ratings.impactoCliente * 0.25 +
+    ratings.escalabilidad * 0.15 +
     ratings.facilidadImplementacion * 0.15 +
-    ratings.escalabilidad * 0.15
+    ratings.costoBeneficio * 0.10
+
   )
 }

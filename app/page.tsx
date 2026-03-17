@@ -30,7 +30,7 @@ export default function ProposalsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [processFilter, setProcessFilter] = useState<string>("all")
-  const [sortBy, setSortBy] = useState<string>("default")
+  const [sortBy, setSortBy] = useState<string>("codigo_desc")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showHidden, setShowHidden] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
@@ -134,10 +134,10 @@ export default function ProposalsPage() {
       result.sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true, sensitivity: 'base' }))
     } else if (sortBy === "codigo_desc") {
       result.sort((a, b) => b.codigo.localeCompare(a.codigo, undefined, { numeric: true, sensitivity: 'base' }))
-    } else if (sortBy === "nombre_asc") {
-      result.sort((a, b) => a.titulo.localeCompare(b.titulo))
-    } else if (sortBy === "nombre_desc") {
-      result.sort((a, b) => b.titulo.localeCompare(a.titulo))
+    } else if (sortBy === "tipo_asc") {
+      result.sort((a, b) => (a.tipo || "").localeCompare(b.tipo || ""))
+    } else if (sortBy === "tipo_desc") {
+      result.sort((a, b) => (b.tipo || "").localeCompare(a.tipo || ""))
     }
 
     return result
@@ -170,10 +170,10 @@ export default function ProposalsPage() {
     setSearchQuery("")
     setStatusFilter("all")
     setProcessFilter("all")
-    setSortBy("default")
+    setSortBy("codigo_desc")
   }
 
-  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all" || sortBy !== "default"
+  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all" || sortBy !== "codigo_desc"
 
   if (!ratingsLoaded || !authLoaded || !proposalsLoaded) {
     return (
@@ -262,11 +262,10 @@ export default function ProposalsPage() {
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default">Por defecto</SelectItem>
-                  <SelectItem value="codigo_asc">Código (A-Z)</SelectItem>
-                  <SelectItem value="codigo_desc">Código (Z-A)</SelectItem>
-                  <SelectItem value="nombre_asc">Nombre (A-Z)</SelectItem>
-                  <SelectItem value="nombre_desc">Nombre (Z-A)</SelectItem>
+                  <SelectItem value="codigo_desc">Código (Descendente)</SelectItem>
+                  <SelectItem value="codigo_asc">Código (Ascendente)</SelectItem>
+                  <SelectItem value="tipo_asc">Tipo (A-Z)</SelectItem>
+                  <SelectItem value="tipo_desc">Tipo (Z-A)</SelectItem>
                 </SelectContent>
               </Select>
 

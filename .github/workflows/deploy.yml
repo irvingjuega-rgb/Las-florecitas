@@ -1,0 +1,43 @@
+name: Deploy Next.js MejorasMango
+
+on:
+  push:
+    branches: [ "main" ] # Verifica si tu rama es main o master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          npm install -g pnpm pm2
+          npx pnpm install
+        shell: powershell
+
+      - name: Build Project
+        run: npx pnpm run build
+        shell: powershell
+
+      - name: Deploy to IIS Folder
+        run: |
+          $sourcePath = "."
+          $destinationPath = "C:\inetpub\wwwroot\Rating de propuestas MC"
+          robocopy $sourcePath $destinationPath /MIR /V /NP /XD node_modules .git .github /XF .env
+          if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
+        shell: powershell
+
+      - name: Restart App with PM2
+        run: |
+          # Usamos npx para que el Runner encuentre PM2 sí o sí
+          try {
+              Write-Host "Intentando reiniciar la app con npx pm2..."
+              npx pm2 restart "mejoras-calidad"
+          } catch {
+              Write-Host "La app no existe, iniciando con npx pm2 por primera vez..."
+              npx pm2 start node_modules/next/dist/bin/next --name "mejoras-calidad" -- start
+          }
+        shell: powershell
