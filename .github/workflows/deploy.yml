@@ -29,20 +29,6 @@ jobs:
 
       - name: Restart App with PM2
         run: |
-          $env:PM2_HOME = "C:\PM2"
-
-          $ErrorActionPreference = "SilentlyContinue"
-          & taskkill /F /IM node.exe /T | Out-Null
-          $ErrorActionPreference = "Stop"
-
-          Start-Sleep -s 2
-
-          cd "C:\inetpub\wwwroot\Rating de propuestas MC"
-
-          $ErrorActionPreference = "SilentlyContinue"
-          npx pm2 delete "mejoras-calidad" | Out-Null
-          $ErrorActionPreference = "Stop"
-
-          npx pm2 start ecosystem.config.js
-          npx pm2 save
+          schtasks /Run /TN "RestartMejoras"
+          Start-Sleep -s 5
         shell: powershell
