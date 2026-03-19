@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, LayoutGrid, List, Sparkles, Target, Plus, LogIn, LogOut, Eye, EyeOff } from "lucide-react"
+import { Search, Filter, LayoutGrid, List, Sparkles, Target, Plus, LogIn, LogOut, Trash2, ArchiveRestore } from "lucide-react"
 import Link from "next/link"
 
 export default function ProposalsPage() {
@@ -32,7 +32,7 @@ export default function ProposalsPage() {
   const [processFilter, setProcessFilter] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("codigo_asc")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [showHidden, setShowHidden] = useState(false)
+  const [activeTab, setActiveTab] = useState<"activas" | "papelera">("activas")
   const [loginOpen, setLoginOpen] = useState(false)
   const [isMock, setIsMock] = useState(false)
 
@@ -43,7 +43,7 @@ export default function ProposalsPage() {
     async function fetchProposals() {
       try {
         const timestamp = Date.now()
-        const baseUrl = isAuthenticated && showHidden ? '/api/mejoras?includeHidden=true' : '/api/mejoras'
+        const baseUrl = isAuthenticated ? '/api/mejoras?includeHidden=true' : '/api/mejoras'
         const url = baseUrl.includes('?') ? `${baseUrl}&t=${timestamp}` : `${baseUrl}?t=${timestamp}`
 
         const response = await fetch(url, {
@@ -79,6 +79,7 @@ export default function ProposalsPage() {
             fechaTermino: item.Fecha_Termino || "",
             impactaA: item.Impacta_A || "",
             observaciones: item.Observaciones || "",
+            beneficios: item.Beneficios || "",
             situacionActual: item.Situacion_Actual || "",
             imagen: item.Imagen || "",
             formatoA3: item.Formato_A3 || "",
@@ -94,7 +95,7 @@ export default function ProposalsPage() {
     }
 
     fetchProposals()
-  }, [isAuthenticated, showHidden])
+  }, [isAuthenticated])
 
   const uniqueProcesses = useMemo(() => {
     const processes = new Set<string>()
@@ -110,6 +111,12 @@ export default function ProposalsPage() {
 
   const filteredProposals = useMemo(() => {
     let result = proposals.filter(proposal => {
+      if (activeTab === "papelera") {
+        if (proposal.visible !== false) return false
+      } else {
+        if (proposal.visible === false) return false
+      }
+
       const matchesSearch = searchQuery === "" ||
         proposal.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
         proposal.descripcion.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -141,7 +148,7 @@ export default function ProposalsPage() {
     }
 
     return result
-  }, [searchQuery, statusFilter, processFilter, ratings, proposals, sortBy])
+  }, [searchQuery, statusFilter, processFilter, ratings, proposals, sortBy, activeTab])
 
   const handleCardClick = (proposal: Proposal) => {
     setSelectedProposal(proposal)
@@ -217,8 +224,8 @@ export default function ProposalsPage() {
               </Badge>
               {isAuthenticated ? (
                 <>
-                  <Button 
-                    onClick={() => window.location.assign("/mejoras/nueva")} 
+                  <Button
+                    onClick={() => window.location.assign("/mejoras/nueva")}
                     className="gap-2 shadow-sm rounded-xl"
                   >
                     <Plus className="h-4 w-4" />
@@ -315,15 +322,23 @@ export default function ProposalsPage() {
                 </Button>
               </div>
               {isAuthenticated && (
-                <Button
-                  variant={showHidden ? "secondary" : "outline"}
-                  onClick={() => setShowHidden(!showHidden)}
-                  className="h-11 rounded-xl bg-background/50 text-muted-foreground border-border/50 hidden sm:flex"
-                  title="Ver propuestas ocultas"
-                >
-                  {showHidden ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                  {showHidden ? "Ocultar invisibles" : "Ver ocultas"}
-                </Button>
+                <div className="hidden sm:flex border border-border/50 rounded-xl overflow-hidden bg-background/50 p-1 gap-1">
+                  <Button
+                    variant={activeTab === "activas" ? "secondary" : "ghost"}
+                    onClick={() => setActiveTab("activas")}
+                    className="h-9 px-4 rounded-lg text-sm font-medium"
+                  >
+                    Activas
+                  </Button>
+                  <Button
+                    variant={activeTab === "papelera" ? "secondary" : "ghost"}
+                    onClick={() => setActiveTab("papelera")}
+                    className="h-9 px-4 rounded-lg text-sm font-medium"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Papelera
+                  </Button>
+                </div>
               )}
             </div>
           </div>

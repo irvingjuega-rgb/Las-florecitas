@@ -15,6 +15,7 @@ export interface Proposal {
   fechaEntrada?: string
   impactaA: string
   observaciones: string
+  beneficios?: string
   visible?: boolean
   situacionActual?: string
   imagen?: string
@@ -58,7 +59,8 @@ export const proposals: Proposal[] = [
     fechaInicio: "1/15/2026",
     fechaTermino: "",
     impactaA: "Objetivos del SGI",
-    observaciones: ""
+    observaciones: "",
+    beneficios: "Mejora en el seguimiento de pedidos y satisfacción del cliente."
   },
   {
     id: "2",

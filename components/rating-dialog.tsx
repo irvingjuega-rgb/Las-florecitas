@@ -46,11 +46,11 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
   useEffect(() => {
     if (existingRating) {
       setRatings({
-        costoBeneficio: existingRating.costoBeneficio,
-        usoIA: existingRating.usoIA,
-        impactoCliente: existingRating.impactoCliente,
-        facilidadImplementacion: existingRating.facilidadImplementacion,
-        escalabilidad: existingRating.escalabilidad,
+        costoBeneficio: Math.round(existingRating.costoBeneficio),
+        usoIA: Math.round(existingRating.usoIA),
+        impactoCliente: Math.round(existingRating.impactoCliente),
+        facilidadImplementacion: Math.round(existingRating.facilidadImplementacion),
+        escalabilidad: Math.round(existingRating.escalabilidad),
       })
     } else {
       setRatings({
@@ -151,6 +151,13 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               </DialogDescription>
             </div>
 
+            <div className="mt-4">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Beneficios:</h4>
+              <DialogDescription className="text-sm text-muted-foreground">
+                {proposal.beneficios || "Sin beneficios registrados"}
+              </DialogDescription>
+            </div>
+
             {images.length > 0 && (
               <div className="mt-4">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Imágenes de respaldo:</h4>
@@ -216,132 +223,132 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
             )}
           </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-3 py-4 text-sm border-y">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="h-4 w-4 text-primary/70" />
-            <span className="font-medium">Propone:</span>
-            <span className="truncate">{proposal.quienPropone}</span>
-          </div>
-          {proposal.proceso && (
+          <div className="grid grid-cols-2 gap-3 py-4 text-sm border-y">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Target className="h-4 w-4 text-primary/70" />
-              <span className="font-medium">Proceso:</span>
-              <span className="truncate">{proposal.proceso}</span>
+              <Users className="h-4 w-4 text-primary/70" />
+              <span className="font-medium">Propone:</span>
+              <span className="truncate">{proposal.quienPropone}</span>
             </div>
-          )}
-          {proposal.equipoMultidisciplinario && (
-            <div className="flex items-center gap-2 text-muted-foreground col-span-2">
-              <Building className="h-4 w-4 text-primary/70" />
-              <span className="font-medium">Equipo:</span>
-              <span className="truncate">{proposal.equipoMultidisciplinario}</span>
-            </div>
-          )}
-          {proposal.fechaInicio && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4 text-primary/70" />
-              <span className="font-medium">Inicio:</span>
-              <span>
-                {(() => {
-                  if (!proposal.fechaInicio) return "";
-                  try {
-                    const date = new Date(proposal.fechaInicio);
-                    const timeZoneOffset = date.getTimezoneOffset() * 60000;
-                    const localDate = new Date(date.getTime() + timeZoneOffset);
-                    return localDate.toLocaleDateString('es-MX', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric'
-                    });
-                  } catch (e) {
-                    return proposal.fechaInicio;
-                  }
-                })()}
-              </span>
-            </div>
-          )}
-          {proposal.impactaA && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4 text-primary/70" />
-              <span className="font-medium">Impacta:</span>
-              <span className="truncate">{proposal.impactaA}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-6 py-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-            <Info className="h-4 w-4 shrink-0" />
-            <span>Califica cada criterio del 1 al 10. La puntuacion total se calcula segun los pesos establecidos.</span>
-          </div>
-
-          {ratingCriteria.map((criterion) => (
-            <div key={criterion.id} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                    {criteriaIcons[criterion.id as keyof typeof criteriaIcons]}
-                  </div>
-                  <div>
-                    <span className="font-medium text-sm">{criterion.label}</span>
-                    <span className="text-xs text-muted-foreground ml-2">
-                      ({(criterion.weight * 100).toFixed(0)}%)
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-primary w-8 text-right">
-                    {ratings[criterion.id as keyof typeof ratings]}
-                  </span>
-                  <span className="text-xs text-muted-foreground">/10</span>
-                </div>
+            {proposal.proceso && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Target className="h-4 w-4 text-primary/70" />
+                <span className="font-medium">Proceso:</span>
+                <span className="truncate">{proposal.proceso}</span>
               </div>
-              <Slider
-                value={[ratings[criterion.id as keyof typeof ratings]]}
-                onValueChange={(value) =>
-                  setRatings(prev => ({ ...prev, [criterion.id]: value[0] }))
-                }
-                min={1}
-                max={10}
-                step={1}
-                className="w-full"
-              />
-            </div>
-          ))}
-        </div>
+            )}
+            {proposal.equipoMultidisciplinario && (
+              <div className="flex items-center gap-2 text-muted-foreground col-span-2">
+                <Building className="h-4 w-4 text-primary/70" />
+                <span className="font-medium">Equipo:</span>
+                <span className="truncate">{proposal.equipoMultidisciplinario}</span>
+              </div>
+            )}
+            {proposal.fechaInicio && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="h-4 w-4 text-primary/70" />
+                <span className="font-medium">Inicio:</span>
+                <span>
+                  {(() => {
+                    if (!proposal.fechaInicio) return "";
+                    try {
+                      const date = new Date(proposal.fechaInicio);
+                      const timeZoneOffset = date.getTimezoneOffset() * 60000;
+                      const localDate = new Date(date.getTime() + timeZoneOffset);
+                      return localDate.toLocaleDateString('es-MX', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      });
+                    } catch (e) {
+                      return proposal.fechaInicio;
+                    }
+                  })()}
+                </span>
+              </div>
+            )}
+            {proposal.impactaA && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CheckCircle2 className="h-4 w-4 text-primary/70" />
+                <span className="font-medium">Impacta:</span>
+                <span className="truncate">{proposal.impactaA}</span>
+              </div>
+            )}
+          </div>
 
-        <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-sm font-medium text-muted-foreground">Puntuacion Total Ponderada</span>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Basada en los criterios y sus pesos
-              </p>
+          <div className="space-y-6 py-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+              <Info className="h-4 w-4 shrink-0" />
+              <span>Califica cada criterio del 1 al 10. La puntuacion total se calcula segun los pesos establecidos.</span>
             </div>
-            <div className="text-right">
-              <span className="text-4xl font-bold text-primary">{totalScore.toFixed(2)}</span>
-              <span className="text-lg text-muted-foreground ml-1">/10</span>
+
+            {ratingCriteria.map((criterion) => (
+              <div key={criterion.id} className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                      {criteriaIcons[criterion.id as keyof typeof criteriaIcons]}
+                    </div>
+                    <div>
+                      <span className="font-medium text-sm">{criterion.label}</span>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        ({(criterion.weight * 100).toFixed(0)}%)
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold text-primary w-8 text-right">
+                      {ratings[criterion.id as keyof typeof ratings]}
+                    </span>
+                    <span className="text-xs text-muted-foreground">/10</span>
+                  </div>
+                </div>
+                <Slider
+                  value={[ratings[criterion.id as keyof typeof ratings]]}
+                  onValueChange={(value) =>
+                    setRatings(prev => ({ ...prev, [criterion.id]: value[0] }))
+                  }
+                  min={1}
+                  max={10}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-medium text-muted-foreground">Puntuacion Total Ponderada</span>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Basada en los criterios y sus pesos
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-4xl font-bold text-primary">{totalScore.toFixed(2)}</span>
+                <span className="text-lg text-muted-foreground ml-1">/10</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex justify-between gap-3 pt-2">
-          <Button variant="outline" onClick={handleReset} className="gap-2" disabled={isSaving}>
-            <RotateCcw className="h-4 w-4" />
-            Reiniciar
-          </Button>
-          <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-            {isSaving ? (
-              <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            {isSaving ? "Guardando..." : "Guardar Calificacion"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog >
+          <div className="flex justify-between gap-3 pt-2">
+            <Button variant="outline" onClick={handleReset} className="gap-2" disabled={isSaving}>
+              <RotateCcw className="h-4 w-4" />
+              Reiniciar
+            </Button>
+            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
+              {isSaving ? (
+                <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              {isSaving ? "Guardando..." : "Guardar Calificacion"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog >
 
-    <Dialog open={!!zoomedImage} onOpenChange={(open) => !open && setZoomedImage(null)}>
+      <Dialog open={!!zoomedImage} onOpenChange={(open) => !open && setZoomedImage(null)}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden border-none bg-transparent shadow-none flex items-center justify-center">
           <DialogHeader className="sr-only">
             <DialogTitle>Vista ampliada de imagen</DialogTitle>

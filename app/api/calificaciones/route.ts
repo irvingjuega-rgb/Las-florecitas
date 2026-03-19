@@ -23,25 +23,40 @@ export async function POST(req: NextRequest) {
       .input("IP_Address", sql.VarChar(45), ipAddress)
       .input("User_Agent", sql.NVarChar(sql.MAX), userAgent)
       .query(`
-        INSERT INTO BioflexRFID.dbo.Calificaciones_Mejoras (
-          MejoraId, 
-          Costo_Beneficio, 
-          Uso_IA_Tecnologia, 
-          Impacto_Satisfaccion_Cliente, 
-          Facilidad_Implementacion, 
-          Escalabilidad,
-          IP_Address,
-          User_Agent
-        ) VALUES (
-          @MejoraId, 
-          @Costo_Beneficio, 
-          @Uso_IA_Tecnologia, 
-          @Impacto_Satisfaccion_Cliente, 
-          @Facilidad_Implementacion, 
-          @Escalabilidad,
-          @IP_Address,
-          @User_Agent
-        )
+        IF EXISTS (SELECT 1 FROM BioflexRFID.dbo.Calificaciones_Mejoras WHERE MejoraId = @MejoraId AND IP_Address = @IP_Address)
+        BEGIN
+          UPDATE BioflexRFID.dbo.Calificaciones_Mejoras
+          SET 
+            Costo_Beneficio = @Costo_Beneficio,
+            Uso_IA_Tecnologia = @Uso_IA_Tecnologia,
+            Impacto_Satisfaccion_Cliente = @Impacto_Satisfaccion_Cliente,
+            Facilidad_Implementacion = @Facilidad_Implementacion,
+            Escalabilidad = @Escalabilidad,
+            User_Agent = @User_Agent
+          WHERE MejoraId = @MejoraId AND IP_Address = @IP_Address
+        END
+        ELSE
+        BEGIN
+          INSERT INTO BioflexRFID.dbo.Calificaciones_Mejoras (
+            MejoraId, 
+            Costo_Beneficio, 
+            Uso_IA_Tecnologia, 
+            Impacto_Satisfaccion_Cliente, 
+            Facilidad_Implementacion, 
+            Escalabilidad,
+            IP_Address,
+            User_Agent
+          ) VALUES (
+            @MejoraId, 
+            @Costo_Beneficio, 
+            @Uso_IA_Tecnologia, 
+            @Impacto_Satisfaccion_Cliente, 
+            @Facilidad_Implementacion, 
+            @Escalabilidad,
+            @IP_Address,
+            @User_Agent
+          )
+        END
       `)
 
     return NextResponse.json({ ok: true, message: "Calificacion registrada correctamente" }, { status: 201 })

@@ -48,8 +48,8 @@ const mejoraSchema = z.object({
     fecha_inicio: z.string().optional().or(z.literal("")),
     fecha_termino: z.string().optional().or(z.literal("")),
     impacta_a: z.string().max(200, "Máximo 200 caracteres").optional().or(z.literal("")),
-
     observaciones: z.string().optional().or(z.literal("")),
+    beneficios: z.string().optional().or(z.literal("")),
     formato_a3: z.string().max(500, "Máximo 500 caracteres").optional().or(z.literal("")),
     imagen: z.string().max(500, "Máximo 500 caracteres").optional().or(z.literal("")),
 })
@@ -90,6 +90,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
             fecha_termino: initialData?.fechaTermino ? new Date(initialData.fechaTermino).toISOString().split("T")[0] : "",
             impacta_a: initialData?.impactaA || "",
             observaciones: initialData?.observaciones || "",
+            beneficios: initialData?.beneficios || "",
             formato_a3: initialData?.formatoA3 || "",
             imagen: initialData?.imagen || "",
         },
@@ -493,6 +494,20 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
                                         <FormLabel>Observaciones Extras</FormLabel>
                                         <FormControl>
                                             <Textarea placeholder="Comentarios adicionales" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="beneficios"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-1 md:col-span-2 lg:col-span-3">
+                                        <FormLabel>Beneficios</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="Describe los beneficios de esta mejora..." {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

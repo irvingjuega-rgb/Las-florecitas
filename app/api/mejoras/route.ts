@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       .input('Facilidad_Implementacion', sql.Decimal(5, 2), body.facilidad_implementacion ?? null)
       .input('Escalabilidad', sql.Decimal(5, 2), body.escalabilidad ?? null)
       .input('Observaciones', sql.NVarChar(sql.MAX), body.observaciones ?? null)
+      .input('Beneficios', sql.NVarChar(sql.MAX), body.beneficios ?? null)
       .input('Formato_A3', sql.VarChar(500), body.formato_a3 ?? null)
       .input('Imagen', sql.VarChar(500), body.imagen ?? null)
       .input('Situacion_Actual', sql.NVarChar(sql.MAX), body.situacion_actual ?? null)
@@ -40,14 +41,14 @@ export async function POST(req: NextRequest) {
           Prioridad, Tipo, Proceso, Status, Fecha_Inicio, Fecha_Termino,
           Impacta_A, Costo_Beneficio, Uso_IA_Tecnologia,
           Impacto_Satisfaccion_Cliente, Facilidad_Implementacion,
-          Escalabilidad, Observaciones, Formato_A3, Imagen, Situacion_Actual
+          Escalabilidad, Observaciones, Beneficios, Formato_A3, Imagen, Situacion_Actual
         ) VALUES (
           @Fecha_Entrada, @Codigo, @Titulo_Mejora, @Quien_Propone,
           @Descripcion_Propuesta, @Equipo_Multidisciplinario, @Factible,
           @Prioridad, @Tipo, @Proceso, @Status, @Fecha_Inicio, @Fecha_Termino,
           @Impacta_A, @Costo_Beneficio, @Uso_IA_Tecnologia,
           @Impacto_Satisfaccion_Cliente, @Facilidad_Implementacion,
-          @Escalabilidad, @Observaciones, @Formato_A3, @Imagen, @Situacion_Actual
+          @Escalabilidad, @Observaciones, @Beneficios, @Formato_A3, @Imagen, @Situacion_Actual
         )
       `);
 
@@ -158,6 +159,7 @@ export async function PUT(req: NextRequest) {
       .input('Facilidad_Implementacion', sql.Decimal(5, 2), body.facilidad_implementacion ?? null)
       .input('Escalabilidad', sql.Decimal(5, 2), body.escalabilidad ?? null)
       .input('Observaciones', sql.NVarChar(sql.MAX), body.observaciones ?? null)
+      .input('Beneficios', sql.NVarChar(sql.MAX), body.beneficios ?? null)
       .input('Formato_A3', sql.VarChar(500), body.formato_a3 ?? null)
       .input('Imagen', sql.VarChar(500), body.imagen ?? null)
       .input('Situacion_Actual', sql.NVarChar(sql.MAX), body.situacion_actual ?? null)
@@ -183,6 +185,7 @@ export async function PUT(req: NextRequest) {
           Facilidad_Implementacion      = @Facilidad_Implementacion,
           Escalabilidad                 = @Escalabilidad,
           Observaciones                 = @Observaciones,
+          Beneficios                    = @Beneficios,
           Formato_A3                    = @Formato_A3,
           Imagen                        = @Imagen,
           Situacion_Actual              = @Situacion_Actual

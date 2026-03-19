@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Proposal, Rating, getProposalImages } from "@/lib/proposals-data"
 import { useAuth } from "@/contexts/auth-context"
-import { Users, Calendar, Target, CheckCircle2, Clock, AlertCircle, Sparkles, Star, Eye, EyeOff, Image as ImageIcon } from "lucide-react"
+import { Users, Calendar, Target, CheckCircle2, Clock, AlertCircle, Sparkles, Star, Trash2, ArchiveRestore, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface ProposalCardProps {
@@ -117,11 +117,11 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                className={`h-7 w-7 text-muted-foreground transition-colors ${proposal.visible === false ? "hover:text-amber-500 hover:bg-amber-500/10" : "hover:text-destructive hover:bg-destructive/10"}`}
                 onClick={onToggleVisibility}
-                title={proposal.visible === false ? "Mostrar propuesta" : "Ocultar propuesta"}
+                title={proposal.visible === false ? "Restaurar propuesta" : "Mover a papelera"}
               >
-                {proposal.visible === false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {proposal.visible === false ? <ArchiveRestore className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
               </Button>
             )}
             <Badge className={`${statusStyles.bg} ${statusStyles.text} flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1`}>
@@ -174,6 +174,13 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Propuesta:</span>
           <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
             {proposal.descripcion || "Sin descripcion disponible"}
+          </p>
+        </div>
+
+        <div className="mb-4">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Beneficios:</span>
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {proposal.beneficios || "Sin beneficios registrados"}
           </p>
         </div>
 
