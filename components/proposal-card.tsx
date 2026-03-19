@@ -138,16 +138,15 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
         {images.length > 0 && (
           <div className="flex gap-2 mb-3 overflow-hidden">
             {images.slice(0, 3).map((img, idx) => (
-              <div 
-                key={idx} 
-                className={`relative rounded-lg overflow-hidden border bg-muted/20 ${
-                  images.length === 1 ? 'w-full aspect-video h-24' : 
-                  images.length === 2 ? 'w-1/2 aspect-square h-20' : 
-                  'w-1/3 aspect-square h-16'
-                }`}
+              <div
+                key={idx}
+                className={`relative rounded-lg overflow-hidden border bg-muted/20 ${images.length === 1 ? 'w-full aspect-video h-24' :
+                    images.length === 2 ? 'w-1/2 aspect-square h-20' :
+                      'w-1/3 aspect-square h-16'
+                  }`}
               >
-                <img 
-                  src={img} 
+                <img
+                  src={img}
                   alt={`${proposal.titulo} ${idx + 1}`}
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
@@ -180,7 +179,7 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
         <div className="mb-4">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Beneficios:</span>
           <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-            {proposal.beneficios || "Sin beneficios registrados"}
+            {proposal.Beneficios || "Sin beneficios registrados"}
           </p>
         </div>
 
