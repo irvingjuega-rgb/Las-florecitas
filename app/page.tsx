@@ -37,7 +37,7 @@ export default function ProposalsPage() {
   const [isMock, setIsMock] = useState(false)
 
   const { ratings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings()
-  const { isAuthenticated, isLoaded: authLoaded, logout } = useAuth()
+  const { isAuthenticated, user, isLoaded: authLoaded, logout } = useAuth()
 
   useEffect(() => {
     async function fetchProposals() {
@@ -182,7 +182,65 @@ export default function ProposalsPage() {
 
   const hasActiveFilters = searchQuery !== "" || statusFilter !== "all" || processFilter !== "all" || sortBy !== "codigo_asc"
 
-  if (!ratingsLoaded || !authLoaded || !proposalsLoaded) {
+  if (!authLoaded) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground">Cargando sesión...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // PANTALLA DE LOGIN OBLIGATORIA
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
+        <div className="max-w-md w-full space-y-8">
+          <div className="bg-card/80 backdrop-blur-xl p-8 rounded-[2.5rem] border border-border/50 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-primary/10" />
+            
+            <div className="text-center relative z-10 space-y-6">
+              <div className="inline-flex p-4 bg-background rounded-3xl shadow-inner border border-border/20">
+                <img 
+                  src="/logo_bioflex__Mesa de trabajo 1.png" 
+                  alt="Bioflex Logo" 
+                  className="h-24 w-auto object-contain"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black tracking-tight text-foreground">Propuestas MC</h2>
+                <p className="text-muted-foreground font-medium">Sistema de Evaluación de Mejora Continua</p>
+              </div>
+
+              <div className="pt-4 text-left">
+                <LoginDialog open={true} onOpenChange={() => {}} isStatic={true} />
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-border/50 text-center">
+              <div className="flex items-center justify-center gap-4">
+                <Badge variant="outline" className="text-[10px] uppercase tracking-widest px-2 py-0.5 border-primary/20 text-primary/70">
+                  SGI-FOR-55
+                </Badge>
+                <Badge variant="outline" className="text-[10px] uppercase tracking-widest px-2 py-0.5 border-primary/20 text-primary/70">
+                  Rev. 00
+                </Badge>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-center text-xs text-muted-foreground/60 font-medium">
+            &copy; 2026 Bioflex TI - Todos los derechos reservados
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!ratingsLoaded || !proposalsLoaded) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -224,13 +282,15 @@ export default function ProposalsPage() {
               </Badge>
               {isAuthenticated ? (
                 <>
-                  <Button
-                    onClick={() => window.location.assign("/mejoras/nueva")}
-                    className="gap-2 shadow-sm rounded-xl"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Nueva Mejora
-                  </Button>
+                  {user?.role === 'admin' && (
+                    <Button
+                      onClick={() => window.location.assign("/mejoras/nueva")}
+                      className="gap-2 shadow-sm rounded-xl"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Nueva Mejora
+                    </Button>
+                  )}
                   <Button variant="outline" size="icon" onClick={logout} className="rounded-xl shadow-sm text-muted-foreground" title="Cerrar sesion">
                     <LogOut className="h-4 w-4" />
                   </Button>
@@ -321,7 +381,7 @@ export default function ProposalsPage() {
                   <List className="h-4 w-4" />
                 </Button>
               </div>
-              {isAuthenticated && (
+              {isAuthenticated && user?.role === 'admin' && (
                 <div className="hidden sm:flex border border-border/50 rounded-xl overflow-hidden bg-background/50 p-1 gap-1">
                   <Button
                     variant={activeTab === "activas" ? "secondary" : "ghost"}

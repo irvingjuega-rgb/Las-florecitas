@@ -72,7 +72,8 @@ function getStatusIcon(status: string) {
 
 export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: ProposalCardProps) {
   const statusStyles = getStatusStyles(proposal.status)
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+  const isAdmin = user?.role === 'admin'
   const images = getProposalImages(proposal.imagen)
 
   // Función para formatear la fecha

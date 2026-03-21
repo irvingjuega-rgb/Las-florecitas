@@ -68,12 +68,12 @@ export function useRatings() {
     fetchRatings()
   }, [fetchRatings])
 
-  const saveRating = useCallback(async (rating: Omit<Rating, 'totalScore'>) => {
+  const saveRating = useCallback(async (rating: Omit<Rating, 'totalScore'>, username?: string) => {
     try {
       const res = await fetch("/api/calificaciones", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rating),
+        body: JSON.stringify({ ...rating, username }),
       })
 
       if (res.ok) {

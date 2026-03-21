@@ -16,19 +16,22 @@ interface StatsCardsProps {
 export function StatsCards({ proposals, ratings }: StatsCardsProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [averageDialogOpen, setAverageDialogOpen] = useState(false)
-  const { isAuthenticated } = useAuth()
-  const totalProposals = proposals.length
+  const { isAuthenticated, user } = useAuth()
+  const isAdmin = user?.role === 'admin'
+
+  const totalProposals = proposals.filter(p => p.visible !== false).length
   const ratedProposals = ratings.length
-  const completedProposals = proposals.filter(p => p.status.toLowerCase() === "terminada").length
+  const completedProposals = proposals.filter(p => p.visible !== false &&
+    p.status.toLowerCase() === "terminada").length
   const inProgressProposals = proposals.filter(p =>
-    ["avanzada", "iniciada"].includes(p.status.toLowerCase())
+    p.visible !== false && ["avanzada", "iniciada"].includes(p.status.toLowerCase())
   ).length
 
   const averageScore = ratings.length > 0
     ? ratings.reduce((sum, r) => sum + r.totalScore, 0) / ratings.length
     : 0
 
-  const stats = [
+  const allStats = [
     {
       label: "Total Propuestas",
       value: totalProposals,
@@ -74,18 +77,20 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
     },
   ]
 
+  const stats = allStats
+
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className={`border-4 ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm transition-all ${stat.interactive && isAuthenticated
+            className={`border-4 ${stat.borderColor} bg-card/60 backdrop-blur-sm shadow-sm transition-all ${stat.interactive && isAdmin
               ? 'cursor-pointer hover:shadow-md hover:bg-card/80 hover:-translate-y-0.5'
               : 'hover:shadow-md'
               }`}
             onClick={() => {
-              if (stat.interactive && isAuthenticated) {
+              if (stat.interactive && isAdmin) {
                 if (stat.label === "Calificadas") {
                   setDialogOpen(true)
                 } else if (stat.label === "Promedio") {

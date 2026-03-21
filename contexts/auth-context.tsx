@@ -2,8 +2,14 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
+interface User {
+    username: string
+    role: "admin" | "user"
+}
+
 interface AuthContextType {
     isAuthenticated: boolean
+    user: User | null
     login: (usuario: string, contrasena: string) => boolean
     logout: () => void
     isLoaded: boolean
@@ -12,38 +18,44 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const STORAGE_KEY = "mc-auth-status"
+const USER_KEY = "mc-auth-user"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+    const [user, setUser] = useState<User | null>(null)
     const [isLoaded, setIsLoaded] = useState<boolean>(false)
 
     useEffect(() => {
         // Verificar si hay una sesion guardada al cargar
         const storedAuth = localStorage.getItem(STORAGE_KEY)
-        if (storedAuth === "true") {
+        const storedUser = localStorage.getItem(USER_KEY)
+        
+        if (storedAuth === "true" && storedUser) {
             setIsAuthenticated(true)
+            setUser(JSON.parse(storedUser))
         }
         setIsLoaded(true)
     }, [])
 
     const login = (usuario: string, contrasena: string) => {
-        // Lista de usuarios permitidos (Añade más usuarios aquí)
+        // Lista de usuarios con roles
         const usuariosPermitidos = [
-            { user: "admin", pass: "admin123" },
-            { user: "agongora", pass: "agongora123" },
-
-            // Ejemplo de cómo agregar otro usuario:
-            // { user: "nuevo_usuario", pass: "su_contrasena" },
+            { user: "admin", pass: "admin123", role: "admin" as const },
+            { user: "agongora", pass: "agongora123", role: "admin" as const },
+            { user: "visitante", pass: "voto123", role: "user" as const },
         ]
 
         // Verificar si las credenciales existen en la lista
-        const isValid = usuariosPermitidos.some(
+        const foundUser = usuariosPermitidos.find(
             (u) => u.user === usuario && u.pass === contrasena
         )
 
-        if (isValid) {
+        if (foundUser) {
+            const userData = { username: foundUser.user, role: foundUser.role }
             setIsAuthenticated(true)
+            setUser(userData)
             localStorage.setItem(STORAGE_KEY, "true")
+            localStorage.setItem(USER_KEY, JSON.stringify(userData))
             return true
         }
         return false
@@ -51,11 +63,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = () => {
         setIsAuthenticated(false)
+        setUser(null)
         localStorage.removeItem(STORAGE_KEY)
+        localStorage.removeItem(USER_KEY)
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, isLoaded }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, isLoaded }}>
             {children}
         </AuthContext.Provider>
     )

@@ -12,6 +12,9 @@ export async function POST(req: NextRequest) {
     // Extraer Headers para auditoria de IP y Client
     const ipAddress = req.headers.get("x-forwarded-for") || "unknown"
     const userAgent = req.headers.get("user-agent") || "unknown"
+    
+    // Si viene un username en el body, lo usamos como identificador unico en lugar de la IP
+    const identifier = body.username || ipAddress
 
     await pool.request()
       .input("MejoraId", sql.Int, Number(body.proposalId))
@@ -20,7 +23,7 @@ export async function POST(req: NextRequest) {
       .input("Impacto_Satisfaccion_Cliente", sql.Int, body.impactoCliente)
       .input("Facilidad_Implementacion", sql.Int, body.facilidadImplementacion)
       .input("Escalabilidad", sql.Int, body.escalabilidad)
-      .input("IP_Address", sql.VarChar(45), ipAddress)
+      .input("IP_Address", sql.VarChar(45), identifier)
       .input("User_Agent", sql.NVarChar(sql.MAX), userAgent)
       .query(`
         IF EXISTS (SELECT 1 FROM BioflexRFID.dbo.Calificaciones_Mejoras WHERE MejoraId = @MejoraId AND IP_Address = @IP_Address)

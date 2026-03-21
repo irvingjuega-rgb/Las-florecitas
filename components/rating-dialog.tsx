@@ -32,7 +32,7 @@ interface RatingDialogProps {
 }
 
 export function RatingDialog({ proposal, existingRating, open, onOpenChange, onSave }: RatingDialogProps) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [isSaving, setIsSaving] = useState(false)
   const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const [ratings, setRatings] = useState({
@@ -75,7 +75,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
         await Promise.resolve(onSave({
           proposalId: proposal.id,
           ...ratings,
-        }))
+        }, user?.username))
       }
       onOpenChange(false)
     } catch (error) {
@@ -120,7 +120,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               <Badge variant="secondary" className="text-xs">
                 {proposal.status}
               </Badge>
-              {isAuthenticated && (
+              {isAuthenticated && user?.role === 'admin' && (
                 <div className="ml-auto">
                   <Link href={`/mejoras/${proposal.id}/editar`}>
                     <Button variant="outline" size="sm" className="gap-2 h-8 text-xs font-medium">
