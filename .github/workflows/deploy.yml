@@ -2,8 +2,8 @@ name: Deploy Next.js MejorasMango111
 on:
   push:
     branches: [ "main" ]
+
 jobs:
-#prueba
   deploy:
     runs-on: self-hosted
     steps:
@@ -13,23 +13,31 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install -g pnpm pm2
-          npx pnpm install --no-frozen-lockfile
+          pnpm install --no-frozen-lockfile
         shell: powershell
 
       - name: Build Project
-        run: npx pnpm run build
+        run: pnpm run build
         shell: powershell
 
       - name: Deploy to IIS Folder
         run: |
           $sourcePath = "."
           $destinationPath = "C:\inetpub\wwwroot\Rating de propuestas MC"
+          # Asegúrate de que la carpeta de destino exista
+          if (!(Test-Path $destinationPath)) { New-Item -ItemType Directory -Force -Path $destinationPath }
+          
           robocopy $sourcePath $destinationPath /MIR /V /NP /XD node_modules .git .github /XF .env .env.local web.config
           if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
         shell: powershell
 
       - name: Restart App with PM2
         run: |
+          # Opción A: Si usas una tarea programada que ejecuta "pm2 restart mejoras-calidad"
           schtasks /Run /TN "RestartMejoras"
+          
+          # Opción B: Si quieres intentar reiniciarlo directamente (requiere permisos de admin)
+          # pm2 restart mejoras-calidad
+          
           Start-Sleep -s 5
         shell: powershell
