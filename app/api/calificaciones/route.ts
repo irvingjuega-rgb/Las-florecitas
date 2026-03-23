@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
             Facilidad_Implementacion, 
             Escalabilidad,
             IP_Address,
-            User_Agent
+            User_Agent,
+            Fecha_Calificacion
           ) VALUES (
             @MejoraId, 
             @Costo_Beneficio, 
@@ -57,7 +58,8 @@ export async function POST(req: NextRequest) {
             @Facilidad_Implementacion, 
             @Escalabilidad,
             @IP_Address,
-            @User_Agent
+            @User_Agent,
+            GETDATE()
           )
         END
       `)

@@ -35,20 +35,20 @@ export async function POST(req: NextRequest) {
       .input('Imagen', sql.VarChar(500), body.imagen ?? null)
       .input('Situacion_Actual', sql.NVarChar(sql.MAX), body.situacion_actual ?? null)
       .query(`
-        INSERT INTO dbo.Mejoras (
+        INSERT INTO BioflexRFID.dbo.Mejoras (
           Fecha_Entrada, Codigo, Titulo_Mejora, Quien_Propone,
           Descripcion_Propuesta, Equipo_Multidisciplinario, Factible,
           Prioridad, Tipo, Proceso, Status, Fecha_Inicio, Fecha_Termino,
           Impacta_A, Costo_Beneficio, Uso_IA_Tecnologia,
           Impacto_Satisfaccion_Cliente, Facilidad_Implementacion,
-          Escalabilidad, Observaciones, Beneficios, Formato_A3, Imagen, Situacion_Actual
+          Escalabilidad, Observaciones, Beneficios, Formato_A3, Imagen, Situacion_Actual, Visible
         ) VALUES (
           @Fecha_Entrada, @Codigo, @Titulo_Mejora, @Quien_Propone,
           @Descripcion_Propuesta, @Equipo_Multidisciplinario, @Factible,
           @Prioridad, @Tipo, @Proceso, @Status, @Fecha_Inicio, @Fecha_Termino,
           @Impacta_A, @Costo_Beneficio, @Uso_IA_Tecnologia,
           @Impacto_Satisfaccion_Cliente, @Facilidad_Implementacion,
-          @Escalabilidad, @Observaciones, @Beneficios, @Formato_A3, @Imagen, @Situacion_Actual
+          @Escalabilidad, @Observaciones, @Beneficios, @Formato_A3, @Imagen, @Situacion_Actual, 1
         )
       `);
 
@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
       // ── Obtener una mejora por ID ──────────────
       const result = await pool.request()
         .input('Id', sql.Int, Number(id))
-        .query('SELECT * FROM dbo.Mejoras WHERE Id = @Id');
+        .query('SELECT * FROM BioflexRFID.dbo.Mejoras WHERE Id = @Id');
 
       if (result.recordset.length === 0) {
         return NextResponse.json(
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
 
     // ── Listar todas las mejoras ───────────────
     const includeHidden = searchParams.get('includeHidden') === 'true';
-    let query = 'SELECT * FROM dbo.Mejoras';
+    let query = 'SELECT * FROM BioflexRFID.dbo.Mejoras';
     if (!includeHidden) {
       query += ' WHERE Visible = 1 OR Visible IS NULL';
     }
@@ -164,7 +164,7 @@ export async function PUT(req: NextRequest) {
       .input('Imagen', sql.VarChar(500), body.imagen ?? null)
       .input('Situacion_Actual', sql.NVarChar(sql.MAX), body.situacion_actual ?? null)
       .query(`
-        UPDATE dbo.Mejoras SET
+        UPDATE BioflexRFID.dbo.Mejoras SET
           Fecha_Entrada                 = @Fecha_Entrada,
           Codigo                        = @Codigo,
           Titulo_Mejora                 = @Titulo_Mejora,
@@ -225,7 +225,7 @@ export async function DELETE(req: NextRequest) {
 
     const result = await pool.request()
       .input('Id', sql.Int, Number(id))
-      .query('DELETE FROM dbo.Mejoras WHERE Id = @Id');
+      .query('DELETE FROM BioflexRFID.dbo.Mejoras WHERE Id = @Id');
 
     if (result.rowsAffected[0] === 0) {
       return NextResponse.json(
@@ -271,7 +271,7 @@ export async function PATCH(req: NextRequest) {
     const result = await pool.request()
       .input('Id', sql.Int, Number(id))
       .input('Visible', sql.Bit, visible ? 1 : 0)
-      .query('UPDATE dbo.Mejoras SET Visible = @Visible WHERE Id = @Id');
+      .query('UPDATE BioflexRFID.dbo.Mejoras SET Visible = @Visible WHERE Id = @Id');
 
     if (result.rowsAffected[0] === 0) {
       return NextResponse.json(

@@ -315,15 +315,13 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
                     return (
                       <button
                         key={option.value}
-                        onClick={() => isAdmin && setRatings(prev => ({ ...prev, [criterion.id]: option.value }))}
-                        disabled={!isAdmin}
+                        onClick={() => setRatings(prev => ({ ...prev, [criterion.id]: option.value }))}
                         className={`
                           flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all group
                           ${isSelected 
                             ? 'border-primary bg-primary/10 shadow-sm' 
                             : 'border-border/40 bg-muted/20 hover:border-primary/50 hover:bg-muted/50'
                           }
-                          ${!isAdmin ? 'cursor-default' : ''}
                         `}
                       >
                         <span className={`text-lg font-bold ${isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`}>
@@ -361,7 +359,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
             </div>
           </div>
 
-          {isAdmin && (
+          {isAuthenticated && (
             <div className="flex justify-between gap-3 pt-2">
               <Button variant="outline" onClick={handleReset} className="gap-2" disabled={isSaving}>
                 <RotateCcw className="h-4 w-4" />

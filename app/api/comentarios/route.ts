@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       .input('MejoraId', sql.Int, Number(mejoraId))
       .query(`
         SELECT Id, MejoraId, Usuario, Comentario, FechaCreacion 
-        FROM dbo.Comentarios 
+        FROM BioflexRFID.dbo.Comentarios_Mejoras 
         WHERE MejoraId = @MejoraId 
         ORDER BY FechaCreacion DESC
       `);
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       .input('Usuario', sql.NVarChar(150), body.usuario)
       .input('Comentario', sql.NVarChar(sql.MAX), body.comentario)
       .query(`
-        INSERT INTO dbo.Comentarios (MejoraId, Usuario, Comentario, FechaCreacion)
+        INSERT INTO BioflexRFID.dbo.Comentarios_Mejoras (MejoraId, Usuario, Comentario, FechaCreacion)
         VALUES (@MejoraId, @Usuario, @Comentario, GETDATE())
       `);
 

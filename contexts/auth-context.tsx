@@ -42,7 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const usuariosPermitidos = [
             { user: "admin", pass: "admin123", role: "admin" as const },
             { user: "agongora", pass: "agongora123", role: "admin" as const },
-            { user: "visitante", pass: "voto123", role: "user" as const },
+            { user: "scots", pass: "SC123", role: "user" as const },
+            { user: "mcastillo", pass: "MC123", role: "user" as const },
+            { user: "oguizar", pass: "OG123", role: "user" as const },
+            { user: "jcasanueva", pass: "JC123", role: "user" as const },
+            { user: "evelazquez", pass: "EV123", role: "user" as const },
+            { user: "mjimenez", pass: "MJ123", role: "user" as const },
+            { user: "hgasca", pass: "HG123", role: "user" as const },
         ]
 
         // Verificar si las credenciales existen en la lista
