@@ -9,17 +9,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Install Dependencies
         run: |
           npm install -g pnpm pm2
           npx pnpm install --no-frozen-lockfile
         shell: powershell
-
       - name: Build Project
         run: npx pnpm run build
         shell: powershell
-
       - name: Deploy to IIS Folder
         run: |
           $sourcePath = "."
@@ -27,9 +24,9 @@ jobs:
           robocopy $sourcePath $destinationPath /MIR /V /NP /XD node_modules .git .github /XF .env .env.local web.config
           if ($lastexitcode -lt 8) { exit 0 } else { exit $lastexitcode }
         shell: powershell
-
       - name: Restart App with PM2
         run: |
           schtasks /Run /TN "RestartMejoras"
+          # pm2 restart mejoras-calidad
           Start-Sleep -s 5
         shell: powershell
