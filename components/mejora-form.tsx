@@ -90,7 +90,7 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
             fecha_termino: initialData?.fechaTermino ? new Date(initialData.fechaTermino).toISOString().split("T")[0] : "",
             impacta_a: initialData?.impactaA || "",
             observaciones: initialData?.observaciones || "",
-            beneficios: initialData?.beneficios || "",
+            beneficios: initialData?.Beneficios || "",
             formato_a3: initialData?.formatoA3 || "",
             imagen: initialData?.imagen || "",
         },

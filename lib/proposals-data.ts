@@ -15,11 +15,11 @@ export interface Proposal {
   fechaEntrada?: string
   impactaA: string
   observaciones: string
-  beneficios?: string
   visible?: boolean
   situacionActual?: string
   imagen?: string
   formatoA3?: string
+  Beneficios?: string
 }
 
 export function getProposalImageUrl(imageValue?: string) {
@@ -59,8 +59,7 @@ export const proposals: Proposal[] = [
     fechaInicio: "1/15/2026",
     fechaTermino: "",
     impactaA: "Objetivos del SGI",
-    observaciones: "",
-    beneficios: "Mejora en el seguimiento de pedidos y satisfacción del cliente."
+    observaciones: ""
   },
   {
     id: "2",

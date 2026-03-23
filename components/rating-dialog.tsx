@@ -22,6 +22,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { CommentsSection } from "@/components/comments-section"
 
 interface RatingDialogProps {
   proposal: Proposal | null
@@ -32,7 +33,7 @@ interface RatingDialogProps {
 }
 
 export function RatingDialog({ proposal, existingRating, open, onOpenChange, onSave }: RatingDialogProps) {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated } = useAuth()
   const [isSaving, setIsSaving] = useState(false)
   const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const [ratings, setRatings] = useState({
@@ -75,7 +76,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
         await Promise.resolve(onSave({
           proposalId: proposal.id,
           ...ratings,
-        }, user?.username))
+        }))
       }
       onOpenChange(false)
     } catch (error) {
@@ -120,7 +121,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               <Badge variant="secondary" className="text-xs">
                 {proposal.status}
               </Badge>
-              {isAuthenticated && user?.role === 'admin' && (
+              {isAuthenticated && (
                 <div className="ml-auto">
                   <Link href={`/mejoras/${proposal.id}/editar`}>
                     <Button variant="outline" size="sm" className="gap-2 h-8 text-xs font-medium">
@@ -154,7 +155,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
             <div className="mt-4">
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Beneficios:</h4>
               <DialogDescription className="text-sm text-muted-foreground">
-                {proposal.beneficios || "Sin beneficios registrados"}
+                {proposal.Beneficios || "Sin beneficios registrados"}
               </DialogDescription>
             </div>
 
@@ -345,6 +346,8 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               {isSaving ? "Guardando..." : "Guardar Calificacion"}
             </Button>
           </div>
+          
+          <CommentsSection proposal={proposal} />
         </DialogContent>
       </Dialog >
 

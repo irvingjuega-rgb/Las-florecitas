@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Verificar si hay una sesion guardada al cargar
         const storedAuth = localStorage.getItem(STORAGE_KEY)
         const storedUser = localStorage.getItem(USER_KEY)
-        
+
         if (storedAuth === "true" && storedUser) {
             setIsAuthenticated(true)
             setUser(JSON.parse(storedUser))
