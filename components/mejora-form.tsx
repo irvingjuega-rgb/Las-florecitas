@@ -31,6 +31,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { Proposal, PROPOSAL_STATUSES, getProposalImageUrl, getProposalImages } from "@/lib/proposals-data"
+import { useAuth } from "@/contexts/auth-context"
 
 const mejoraSchema = z.object({
     fecha_entrada: z.string().min(1, "Requerido"),
@@ -62,6 +63,7 @@ interface MejoraFormProps {
 
 export function MejoraForm({ initialData }: MejoraFormProps = {}) {
     const router = useRouter()
+    const { user, isLoaded, isAuthenticated } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [isUploadingImage, setIsUploadingImage] = useState(false)
     const [mounted, setMounted] = useState(false)
@@ -70,6 +72,12 @@ export function MejoraForm({ initialData }: MejoraFormProps = {}) {
     useEffect(() => {
         setMounted(true)
     }, [])
+
+    useEffect(() => {
+        if (isLoaded && (!isAuthenticated || user?.role !== 'admin')) {
+            router.push('/')
+        }
+    }, [isLoaded, isAuthenticated, user, router])
 
     const form = useForm<MejoraFormValues>({
         resolver: zodResolver(mejoraSchema),

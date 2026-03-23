@@ -28,7 +28,19 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
   ).length
 
   const averageScore = ratings.length > 0
-    ? ratings.reduce((sum, r) => sum + r.totalScore, 0) / ratings.length
+    ? ratings.reduce((sum, r) => {
+        const mapOldRating = (val: number) => {
+          if (val > 5) return Math.min(5, Math.ceil(val / 2))
+          return Math.max(1, Math.min(5, Math.round(val)))
+        }
+        const cb = mapOldRating(r.costoBeneficio || 0)
+        const ia = mapOldRating(r.usoIA || 0)
+        const ic = mapOldRating(r.impactoCliente || 0)
+        const fi = mapOldRating(r.facilidadImplementacion || 0)
+        const esc = mapOldRating(r.escalabilidad || 0)
+        const total = cb * 0.20 + ia * 0.30 + ic * 0.20 + fi * 0.15 + esc * 0.15;
+        return sum + total;
+      }, 0) / ratings.length
     : 0
 
   const allStats = [
@@ -72,7 +84,7 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       color: "text-primary",
       bgColor: "bg-primary/10",
       borderColor: "border-primary/20",
-      suffix: "/10",
+      suffix: "/5",
       interactive: true,
     },
   ]

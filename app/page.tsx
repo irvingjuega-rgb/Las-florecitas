@@ -37,7 +37,8 @@ export default function ProposalsPage() {
   const [isMock, setIsMock] = useState(false)
 
   const { ratings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings()
-  const { isAuthenticated, isLoaded: authLoaded, logout } = useAuth()
+  const { isAuthenticated, isLoaded: authLoaded, logout, user } = useAuth()
+  const isAdmin = user?.role === 'admin'
 
   useEffect(() => {
     async function fetchProposals() {
@@ -241,13 +242,15 @@ export default function ProposalsPage() {
               </Badge>
               {isAuthenticated ? (
                 <>
-                  <Button
-                    onClick={() => window.location.assign("/mejoras/nueva")}
-                    className="gap-2 shadow-sm rounded-xl"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Nueva Mejora
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      onClick={() => window.location.assign("/mejoras/nueva")}
+                      className="gap-2 shadow-sm rounded-xl"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Nueva Mejora
+                    </Button>
+                  )}
                   <Button variant="outline" size="icon" onClick={logout} className="rounded-xl shadow-sm text-muted-foreground" title="Cerrar sesion">
                     <LogOut className="h-4 w-4" />
                   </Button>
@@ -338,7 +341,7 @@ export default function ProposalsPage() {
                   <List className="h-4 w-4" />
                 </Button>
               </div>
-              {isAuthenticated && (
+              {isAdmin && (
                 <div className="hidden sm:flex border border-border/50 rounded-xl overflow-hidden bg-background/50 p-1 gap-1">
                   <Button
                     variant={activeTab === "activas" ? "secondary" : "ghost"}
@@ -390,7 +393,7 @@ export default function ProposalsPage() {
               proposal={proposal}
               rating={getRating(proposal.id)}
               onClick={() => handleCardClick(proposal)}
-              onToggleVisibility={isAuthenticated ? (e) => handleToggleVisibility(e, proposal.id, proposal.visible !== false) : undefined}
+              onToggleVisibility={isAdmin ? (e) => handleToggleVisibility(e, proposal.id, proposal.visible !== false) : undefined}
             />
           ))}
         </div>
@@ -423,7 +426,7 @@ export default function ProposalsPage() {
         existingRating={selectedProposal ? getRating(selectedProposal.id) : undefined}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSave={saveRating}
+        onSave={(r) => saveRating(r, user?.username)}
       />
 
       <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} />

@@ -93,7 +93,7 @@ export function GlobalRatingDialog({
                                     <TableHeader className="bg-muted/50 sticky top-0 backdrop-blur-sm z-10">
                                         <TableRow>
                                             <TableHead>Propuesta</TableHead>
-                                            <TableHead>Sistema/Dispositivo</TableHead>
+                                            <TableHead>Usuario Evaluador</TableHead>
                                             <TableHead>Fecha</TableHead>
                                             <TableHead className="text-right">Calificación Total</TableHead>
                                         </TableRow>
@@ -107,32 +107,43 @@ export function GlobalRatingDialog({
                                             </TableRow>
                                         ) : (
                                             details.map((row, idx) => {
-                                                const cb = Number(row.costoBeneficio) || 0;
-                                                const ia = Number(row.usoIA) || 0;
-                                                const ic = Number(row.impactoCliente) || 0;
-                                                const fi = Number(row.facilidadImplementacion) || 0;
-                                                const esc = Number(row.escalabilidad) || 0;
+                                                const mapOldRating = (val: number) => {
+                                                    if (val > 5) return Math.min(5, Math.ceil(val / 2))
+                                                    return Math.max(1, Math.min(5, Math.round(val)))
+                                                }
+
+                                                const cb = mapOldRating(Number(row.costoBeneficio) || 0);
+                                                const ia = mapOldRating(Number(row.usoIA) || 0);
+                                                const ic = mapOldRating(Number(row.impactoCliente) || 0);
+                                                const fi = mapOldRating(Number(row.facilidadImplementacion) || 0);
+                                                const esc = mapOldRating(Number(row.escalabilidad) || 0);
 
                                                 const total = cb * 0.20 + ia * 0.30 + ic * 0.20 + fi * 0.15 + esc * 0.15;
+
+                                                const isIP = row.ipAddress.includes('.') || row.ipAddress.includes(':') || row.ipAddress === 'unknown';
 
                                                 return (
                                                     <TableRow key={idx}>
                                                         <TableCell className="font-medium">
                                                             {getProposalName(row.proposalId)}
                                                         </TableCell>
-                                                        <TableCell className="text-xs max-w-[150px] truncate" title={row.userAgent}>
+                                                        <TableCell className="text-sm max-w-[150px] truncate">
                                                             <div className="flex flex-col">
-                                                                <span className="font-semibold">{getDeviceName(row.userAgent)}</span>
-                                                                <span className="text-muted-foreground text-[10px] truncate">
-                                                                    IP: {row.ipAddress}
+                                                                <span className="font-semibold text-foreground">
+                                                                    {isIP ? 'Evaluador Anónimo' : row.ipAddress}
                                                                 </span>
+                                                                {isIP && (
+                                                                    <span className="text-muted-foreground text-[10px] truncate">
+                                                                        IP: {row.ipAddress}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </TableCell>
                                                         <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                                                             {row.createdAt ? format(new Date(row.createdAt), "d 'de' MMMM, yyyy · HH:mm", { locale: es }) : "—"}
                                                         </TableCell>
                                                         <TableCell className="text-right font-bold text-primary text-lg">
-                                                            {total.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 10</span>
+                                                            {total.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 5</span>
                                                         </TableCell>
                                                     </TableRow>
                                                 )

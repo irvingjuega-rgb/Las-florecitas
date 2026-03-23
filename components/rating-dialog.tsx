@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
-import { Proposal, ratingCriteria, Rating, calculateTotalScore, getProposalImages } from "@/lib/proposals-data"
+import { Proposal, ratingCriteria, Rating, calculateTotalScore, getProposalImages, RATING_SCALE_OPTIONS } from "@/lib/proposals-data"
 import { useAuth } from "@/contexts/auth-context"
 import { Users, Target, Calendar, Building, CheckCircle2, Lightbulb, Save, RotateCcw, Info, Edit, Maximize2, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
@@ -33,7 +33,8 @@ interface RatingDialogProps {
 }
 
 export function RatingDialog({ proposal, existingRating, open, onOpenChange, onSave }: RatingDialogProps) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+  const isAdmin = user?.role === 'admin'
   const [isSaving, setIsSaving] = useState(false)
   const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const [ratings, setRatings] = useState({
@@ -46,20 +47,24 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
 
   useEffect(() => {
     if (existingRating) {
+      const mapOldRating = (val: number) => {
+        if (val > 5) return Math.min(5, Math.ceil(val / 2))
+        return Math.max(1, Math.min(5, Math.round(val)))
+      }
       setRatings({
-        costoBeneficio: Math.round(existingRating.costoBeneficio),
-        usoIA: Math.round(existingRating.usoIA),
-        impactoCliente: Math.round(existingRating.impactoCliente),
-        facilidadImplementacion: Math.round(existingRating.facilidadImplementacion),
-        escalabilidad: Math.round(existingRating.escalabilidad),
+        costoBeneficio: mapOldRating(existingRating.costoBeneficio),
+        usoIA: mapOldRating(existingRating.usoIA),
+        impactoCliente: mapOldRating(existingRating.impactoCliente),
+        facilidadImplementacion: mapOldRating(existingRating.facilidadImplementacion),
+        escalabilidad: mapOldRating(existingRating.escalabilidad),
       })
     } else {
       setRatings({
-        costoBeneficio: 5,
-        usoIA: 5,
-        impactoCliente: 5,
-        facilidadImplementacion: 5,
-        escalabilidad: 5,
+        costoBeneficio: 3,
+        usoIA: 3,
+        impactoCliente: 3,
+        facilidadImplementacion: 3,
+        escalabilidad: 3,
       })
     }
   }, [existingRating, proposal])
@@ -88,11 +93,11 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
 
   const handleReset = () => {
     setRatings({
-      costoBeneficio: 5,
-      usoIA: 5,
-      impactoCliente: 5,
-      facilidadImplementacion: 5,
-      escalabilidad: 5,
+      costoBeneficio: 3,
+      usoIA: 3,
+      impactoCliente: 3,
+      facilidadImplementacion: 3,
+      escalabilidad: 3,
     })
   }
 
@@ -121,7 +126,7 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               <Badge variant="secondary" className="text-xs">
                 {proposal.status}
               </Badge>
-              {isAuthenticated && (
+              {isAdmin && (
                 <div className="ml-auto">
                   <Link href={`/mejoras/${proposal.id}/editar`}>
                     <Button variant="outline" size="sm" className="gap-2 h-8 text-xs font-medium">
@@ -279,40 +284,64 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
           <div className="space-y-6 py-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
               <Info className="h-4 w-4 shrink-0" />
-              <span>Califica cada criterio del 1 al 10. La puntuacion total se calcula segun los pesos establecidos.</span>
+              <span>Califica cada criterio del 1 al 5 ("Insuficiente" a "Sobresaliente"). La puntuacion total se calcula segun los pesos establecidos.</span>
             </div>
 
             {ratingCriteria.map((criterion) => (
-              <div key={criterion.id} className="space-y-3">
-                <div className="flex items-center justify-between">
+              <div key={criterion.id} className="space-y-3 bg-card border border-border/40 rounded-xl p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                       {criteriaIcons[criterion.id as keyof typeof criteriaIcons]}
                     </div>
                     <div>
-                      <span className="font-medium text-sm">{criterion.label}</span>
+                      <span className="font-semibold text-sm">{criterion.label}</span>
                       <span className="text-xs text-muted-foreground ml-2">
                         ({(criterion.weight * 100).toFixed(0)}%)
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-primary w-8 text-right">
+                  <div className="flex items-center gap-1.5 bg-primary/10 px-3 py-1 rounded-full">
+                    <span className="text-xl font-bold text-primary">
                       {ratings[criterion.id as keyof typeof ratings]}
                     </span>
-                    <span className="text-xs text-muted-foreground">/10</span>
+                    <span className="text-xs text-primary/70 font-medium">/ 5</span>
                   </div>
                 </div>
-                <Slider
-                  value={[ratings[criterion.id as keyof typeof ratings]]}
-                  onValueChange={(value) =>
-                    setRatings(prev => ({ ...prev, [criterion.id]: value[0] }))
-                  }
-                  min={1}
-                  max={10}
-                  step={1}
-                  className="w-full"
-                />
+
+                <div className="grid grid-cols-5 gap-2">
+                  {RATING_SCALE_OPTIONS.map((option) => {
+                    const isSelected = ratings[criterion.id as keyof typeof ratings] === option.value
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => isAdmin && setRatings(prev => ({ ...prev, [criterion.id]: option.value }))}
+                        disabled={!isAdmin}
+                        className={`
+                          flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all group
+                          ${isSelected 
+                            ? 'border-primary bg-primary/10 shadow-sm' 
+                            : 'border-border/40 bg-muted/20 hover:border-primary/50 hover:bg-muted/50'
+                          }
+                          ${!isAdmin ? 'cursor-default' : ''}
+                        `}
+                      >
+                        <span className={`text-lg font-bold ${isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                          {option.value}
+                        </span>
+                        <span className={`text-[10px] sm:text-xs font-medium text-center leading-tight mt-1 ${isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground/80'}`}>
+                          {option.label}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-lg border border-border/30">
+                  <span className="font-semibold text-foreground/80 mr-1">
+                    {RATING_SCALE_OPTIONS.find(o => o.value === ratings[criterion.id as keyof typeof ratings])?.label}:
+                  </span>
+                  {RATING_SCALE_OPTIONS.find(o => o.value === ratings[criterion.id as keyof typeof ratings])?.description}
+                </div>
               </div>
             ))}
           </div>
@@ -327,25 +356,27 @@ export function RatingDialog({ proposal, existingRating, open, onOpenChange, onS
               </div>
               <div className="text-right">
                 <span className="text-4xl font-bold text-primary">{totalScore.toFixed(2)}</span>
-                <span className="text-lg text-muted-foreground ml-1">/10</span>
+                <span className="text-lg text-muted-foreground ml-1">/ 5</span>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-between gap-3 pt-2">
-            <Button variant="outline" onClick={handleReset} className="gap-2" disabled={isSaving}>
-              <RotateCcw className="h-4 w-4" />
-              Reiniciar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              {isSaving ? (
-                <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              {isSaving ? "Guardando..." : "Guardar Calificacion"}
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex justify-between gap-3 pt-2">
+              <Button variant="outline" onClick={handleReset} className="gap-2" disabled={isSaving}>
+                <RotateCcw className="h-4 w-4" />
+                Reiniciar
+              </Button>
+              <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
+                {isSaving ? (
+                  <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {isSaving ? "Guardando..." : "Guardar Calificacion"}
+              </Button>
+            </div>
+          )}
           
           <CommentsSection proposal={proposal} />
         </DialogContent>

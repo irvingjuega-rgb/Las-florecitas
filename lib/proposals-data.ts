@@ -471,6 +471,14 @@ export const proposals: Proposal[] = [
   }
 ]
 
+export const RATING_SCALE_OPTIONS = [
+  { value: 1, label: "Insuficiente", description: "No cumple con el criterio o no es claro." },
+  { value: 2, label: "Limitado", description: "Cumple parcialmente, con bajo impacto." },
+  { value: 3, label: "Adecuado", description: "Cumple de manera aceptable, con impacto moderado." },
+  { value: 4, label: "Sólido", description: "Cumple de forma clara, con buen impacto." },
+  { value: 5, label: "Sobresaliente", description: "Cumple totalmente, con alto impacto y gran valor." },
+]
+
 export const ratingCriteria = [
   { id: "usoIA", label: "Uso de IA y Tecnologia", weight: 0.35 },
   { id: "impactoCliente", label: "Impacto en Satisfaccion al Cliente", weight: 0.25 },

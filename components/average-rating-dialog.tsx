@@ -73,11 +73,16 @@ export function AverageRatingDialog({
                                 }
                             }
 
-                            const cb = Number(rating.costoBeneficio) || 0;
-                            const ia = Number(rating.usoIA) || 0;
-                            const ic = Number(rating.impactoCliente) || 0;
-                            const fi = Number(rating.facilidadImplementacion) || 0;
-                            const esc = Number(rating.escalabilidad) || 0;
+                            const mapOldRating = (val: number) => {
+                                if (val > 5) return Math.min(5, Math.ceil(val / 2))
+                                return Math.max(1, Math.min(5, Math.round(val)))
+                            }
+
+                            const cb = mapOldRating(Number(rating.costoBeneficio) || 0);
+                            const ia = mapOldRating(Number(rating.usoIA) || 0);
+                            const ic = mapOldRating(Number(rating.impactoCliente) || 0);
+                            const fi = mapOldRating(Number(rating.facilidadImplementacion) || 0);
+                            const esc = mapOldRating(Number(rating.escalabilidad) || 0);
 
                             const total = cb * 0.20 + ia * 0.30 + ic * 0.20 + fi * 0.15 + esc * 0.15;
 
@@ -146,7 +151,7 @@ export function AverageRatingDialog({
                                                         </span>
                                                     </TableCell>
                                                     <TableCell className="text-right font-bold text-primary text-xl">
-                                                        {row.totalScore.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 10</span>
+                                                        {row.totalScore.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 5</span>
                                                     </TableCell>
                                                 </TableRow>
                                             ))
