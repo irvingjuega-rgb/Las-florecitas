@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const login = (usuario: string, contrasena: string) => {
         // Lista de usuarios con roles
         const usuariosPermitidos = [
-            { user: "admin", pass: "admin123", role: "admin" as const },
+            { user: "Admin", pass: "Admin123", role: "admin" as const },
             { user: "agongora", pass: "agongora123", role: "admin" as const },
             { user: "scots", pass: "SC123", role: "user" as const },
             { user: "mcastillo", pass: "MC123", role: "user" as const },
