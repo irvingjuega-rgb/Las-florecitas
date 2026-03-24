@@ -5,13 +5,17 @@ import { Rating, calculateTotalScore, proposals as mockProposals } from "@/lib/p
 
 const STORAGE_KEY = "mc-proposal-ratings"
 
-export function useRatings() {
+export function useRatings(username?: string) {
   const [ratings, setRatings] = useState<Rating[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
 
   const fetchRatings = useCallback(async () => {
     try {
-      const res = await fetch(`/api/calificaciones?t=${Date.now()}`, {
+      const url = username 
+        ? `/api/calificaciones?username=${encodeURIComponent(username)}&t=${Date.now()}`
+        : `/api/calificaciones?t=${Date.now()}`;
+        
+      const res = await fetch(url, {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',
@@ -62,7 +66,7 @@ export function useRatings() {
     } finally {
       setIsLoaded(true)
     }
-  }, [])
+  }, [username])
 
   useEffect(() => {
     fetchRatings()

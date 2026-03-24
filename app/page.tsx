@@ -36,8 +36,8 @@ export default function ProposalsPage() {
   const [loginOpen, setLoginOpen] = useState(false)
   const [isMock, setIsMock] = useState(false)
 
-  const { ratings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings()
   const { isAuthenticated, isLoaded: authLoaded, logout, user } = useAuth()
+  const { ratings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings(user?.username)
   const isAdmin = user?.role === 'admin'
 
   useEffect(() => {

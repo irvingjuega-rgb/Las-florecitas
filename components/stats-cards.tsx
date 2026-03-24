@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent } from "@/components/ui/card"
-import { Proposal, Rating } from "@/lib/proposals-data"
+import { Proposal, Rating, calculateTotalScore } from "@/lib/proposals-data"
 import { FileText, CheckCircle2, Clock, Star, TrendingUp } from "lucide-react"
 import { GlobalRatingDialog } from "./global-rating-dialog"
 import { AverageRatingDialog } from "./average-rating-dialog"
@@ -38,7 +38,14 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
         const ic = mapOldRating(r.impactoCliente || 0)
         const fi = mapOldRating(r.facilidadImplementacion || 0)
         const esc = mapOldRating(r.escalabilidad || 0)
-        const total = cb * 0.20 + ia * 0.30 + ic * 0.20 + fi * 0.15 + esc * 0.15;
+        
+        const total = calculateTotalScore({
+          costoBeneficio: cb,
+          usoIA: ia,
+          impactoCliente: ic,
+          facilidadImplementacion: fi,
+          escalabilidad: esc
+        })
         return sum + total;
       }, 0) / ratings.length
     : 0

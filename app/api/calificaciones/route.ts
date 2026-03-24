@@ -74,6 +74,9 @@ export async function POST(req: NextRequest) {
 }
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url)
+    const username = searchParams.get("username")
+    
     let pool;
     try {
       pool = await getConnection();
@@ -82,19 +85,37 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: true, data: [], isMock: true });
     }
 
-    // Retorna todos los registros agrupados (promedios) por MejoraId
-    const result = await pool.request().query(`
-      SELECT
-        CAST(MejoraId AS VARCHAR) as proposalId,
-        AVG(CAST(Costo_Beneficio as FLOAT)) as costoBeneficio,
-        AVG(CAST(Uso_IA_Tecnologia as FLOAT)) as usoIA,
-        AVG(CAST(Impacto_Satisfaccion_Cliente as FLOAT)) as impactoCliente,
-        AVG(CAST(Facilidad_Implementacion as FLOAT)) as facilidadImplementacion,
-        AVG(CAST(Escalabilidad as FLOAT)) as escalabilidad
-      FROM BioflexRFID.dbo.Calificaciones_Mejoras
-      GROUP BY MejoraId
-    `)
+    let query = "";
+    let request = pool.request();
 
+    if (username) {
+      request = request.input("username", sql.VarChar(45), username);
+      query = `
+        SELECT
+          CAST(MejoraId AS VARCHAR) as proposalId,
+          Costo_Beneficio as costoBeneficio,
+          Uso_IA_Tecnologia as usoIA,
+          Impacto_Satisfaccion_Cliente as impactoCliente,
+          Facilidad_Implementacion as facilidadImplementacion,
+          Escalabilidad as escalabilidad
+        FROM BioflexRFID.dbo.Calificaciones_Mejoras
+        WHERE IP_Address = @username
+      `;
+    } else {
+      query = `
+        SELECT
+          CAST(MejoraId AS VARCHAR) as proposalId,
+          AVG(CAST(Costo_Beneficio as FLOAT)) as costoBeneficio,
+          AVG(CAST(Uso_IA_Tecnologia as FLOAT)) as usoIA,
+          AVG(CAST(Impacto_Satisfaccion_Cliente as FLOAT)) as impactoCliente,
+          AVG(CAST(Facilidad_Implementacion as FLOAT)) as facilidadImplementacion,
+          AVG(CAST(Escalabilidad as FLOAT)) as escalabilidad
+        FROM BioflexRFID.dbo.Calificaciones_Mejoras
+        GROUP BY MejoraId
+      `;
+    }
+
+    const result = await request.query(query)
     return NextResponse.json({ ok: true, data: result.recordset })
   } catch (error) {
     console.error("Error al obtener calificaciones:", error)

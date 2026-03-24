@@ -222,7 +222,7 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
                 <div className="h-2 w-20 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all"
-                    style={{ width: `${(rating.totalScore / 10) * 100}%` }}
+                    style={{ width: `${(rating.totalScore / 5) * 100}%` }}
                   />
                 </div>
                 <span className="text-lg font-bold text-primary tabular-nums">
