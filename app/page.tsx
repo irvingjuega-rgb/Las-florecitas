@@ -37,7 +37,7 @@ export default function ProposalsPage() {
   const [isMock, setIsMock] = useState(false)
 
   const { isAuthenticated, isLoaded: authLoaded, logout, user } = useAuth()
-  const { ratings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings(user?.username)
+  const { ratings, globalRatings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings(user || undefined)
   const isAdmin = user?.role === 'admin'
 
   useEffect(() => {
@@ -267,7 +267,7 @@ export default function ProposalsPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <StatsCards proposals={proposals} ratings={ratings} />
+        <StatsCards proposals={proposals} ratings={globalRatings} />
 
         <div className="bg-card/60 backdrop-blur-sm rounded-2xl border border-border/50 p-5 space-y-4 shadow-sm">
           <div className="flex flex-col lg:flex-row gap-4">

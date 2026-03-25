@@ -129,13 +129,14 @@ export function AverageRatingDialog({
                                         <TableRow>
                                             <TableHead>Propuesta</TableHead>
                                             <TableHead className="text-center">Total de Calificaciones</TableHead>
-                                            <TableHead className="text-right">Promedio General</TableHead>
+                                            <TableHead className="text-right">Promedio General (1-5)</TableHead>
+                                            <TableHead className="text-right">Promedio (1-10)</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {averages.length === 0 ? (
                                             <TableRow>
-                                                <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
+                                                <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
                                                     No hay calificaciones registradas aún para calcular promedios.
                                                 </TableCell>
                                             </TableRow>
@@ -152,6 +153,9 @@ export function AverageRatingDialog({
                                                     </TableCell>
                                                     <TableCell className="text-right font-bold text-primary text-xl">
                                                         {row.totalScore.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 5</span>
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-bold text-primary text-xl">
+                                                        {(row.totalScore * 2).toFixed(1)} <span className="text-sm font-normal text-muted-foreground">/ 10</span>
                                                     </TableCell>
                                                 </TableRow>
                                             ))
