@@ -16,7 +16,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { proposals } from "@/lib/proposals-data"
+import { Proposal } from "@/lib/proposals-data"
 
 interface RawRating {
     proposalId: string
@@ -42,11 +42,13 @@ import { useAuth } from "@/contexts/auth-context"
 interface AverageRatingDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    proposals: Proposal[]
 }
 
 export function AverageRatingDialog({
     open,
     onOpenChange,
+    proposals,
 }: AverageRatingDialogProps) {
     const { isAuthenticated } = useAuth()
     const [averages, setAverages] = useState<ProposalAverage[]>([])

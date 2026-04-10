@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     // Extraer Headers para auditoria de IP y Client
     const ipAddress = req.headers.get("x-forwarded-for") || "unknown"
     const userAgent = req.headers.get("user-agent") || "unknown"
-    
+
     // Si viene un username en el body, lo usamos como identificador unico en lugar de la IP
     const identifier = body.username || ipAddress
 
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const username = searchParams.get("username")
-    
+
     let pool;
     try {
       pool = await getConnection();

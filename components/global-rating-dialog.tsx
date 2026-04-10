@@ -16,7 +16,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { proposals } from "@/lib/proposals-data"
+import { Proposal } from "@/lib/proposals-data"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 
@@ -35,11 +35,13 @@ interface RawRating {
 interface GlobalRatingDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    proposals: Proposal[]
 }
 
 export function GlobalRatingDialog({
     open,
     onOpenChange,
+    proposals,
 }: GlobalRatingDialogProps) {
     const [details, setDetails] = useState<RawRating[]>([])
     const [loading, setLoading] = useState(false)

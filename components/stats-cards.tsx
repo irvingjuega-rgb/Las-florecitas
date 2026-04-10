@@ -140,11 +140,13 @@ export function StatsCards({ proposals, ratings }: StatsCardsProps) {
       <GlobalRatingDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        proposals={proposals}
       />
 
       <AverageRatingDialog
         open={averageDialogOpen}
         onOpenChange={setAverageDialogOpen}
+        proposals={proposals}
       />
     </>
   )
