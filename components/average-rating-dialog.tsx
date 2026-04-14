@@ -38,6 +38,9 @@ interface ProposalAverage {
 }
 
 import { useAuth } from "@/contexts/auth-context"
+import { ProposalDetailsDialog } from "./proposal-details-dialog"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 interface AverageRatingDialogProps {
     open: boolean
@@ -53,6 +56,21 @@ export function AverageRatingDialog({
     const { isAuthenticated } = useAuth()
     const [averages, setAverages] = useState<ProposalAverage[]>([])
     const [loading, setLoading] = useState(false)
+    const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
+    const [detailsOpen, setDetailsOpen] = useState(false)
+    const [searchQuery, setSearchQuery] = useState("")
+
+    const filteredAverages = averages.filter(avg => 
+        avg.proposalName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    const handleRowClick = (proposalId: string) => {
+        const proposal = proposals.find(p => p.id === proposalId)
+        if (proposal) {
+            setSelectedProposal(proposal)
+            setDetailsOpen(true)
+        }
+    }
 
     useEffect(() => {
         if (open && isAuthenticated) {
@@ -117,8 +135,18 @@ export function AverageRatingDialog({
                     <DialogTitle className="text-2xl font-bold tracking-tight">Promedio General por Propuesta</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-hidden mt-6">
-                    <ScrollArea className="h-[65vh] w-full border rounded-lg bg-card shadow-sm">
+                <div className="mt-4 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Buscar por código de propuesta..." 
+                        className="pl-10 h-10 rounded-xl bg-muted/30 border-border/50"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+
+                <div className="flex-1 overflow-hidden mt-4">
+                    <ScrollArea className="h-[60vh] w-full border rounded-lg bg-card shadow-sm">
                         <div className="w-full">
                             {loading ? (
                                 <div className="p-8 text-center text-muted-foreground flex flex-col items-center gap-2">
@@ -136,15 +164,19 @@ export function AverageRatingDialog({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {averages.length === 0 ? (
+                                        {filteredAverages.length === 0 ? (
                                             <TableRow>
                                                 <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                                                    No hay calificaciones registradas aún para calcular promedios.
+                                                    {searchQuery ? "No se encontraron propuestas con ese código." : "No hay calificaciones registradas aún para calcular promedios."}
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            averages.map((row, idx) => (
-                                                <TableRow key={idx}>
+                                            filteredAverages.map((row, idx) => (
+                                                <TableRow 
+                                                    key={idx} 
+                                                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                                                    onClick={() => handleRowClick(row.proposalId)}
+                                                >
                                                     <TableCell className="font-medium text-base">
                                                         {row.proposalName}
                                                     </TableCell>
@@ -168,6 +200,12 @@ export function AverageRatingDialog({
                         </div>
                     </ScrollArea>
                 </div>
+                
+                <ProposalDetailsDialog 
+                    open={detailsOpen} 
+                    onOpenChange={setDetailsOpen} 
+                    proposal={selectedProposal} 
+                />
             </DialogContent>
         </Dialog>
     )

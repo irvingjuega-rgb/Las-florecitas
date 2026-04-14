@@ -18,8 +18,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, LayoutGrid, List, Sparkles, Target, Plus, LogIn, LogOut, Trash2, ArchiveRestore } from "lucide-react"
+import { Search, Filter, LayoutGrid, List, Sparkles, Target, Plus, LogIn, LogOut, Trash2, ArchiveRestore, BarChart3 } from "lucide-react"
 import Link from "next/link"
+import { VotingChartDialog } from "@/components/voting-chart-dialog"
 
 export default function ProposalsPage() {
   const [proposals, setProposals] = useState<Proposal[]>([])
@@ -243,13 +244,16 @@ export default function ProposalsPage() {
               {isAuthenticated ? (
                 <>
                   {isAdmin && (
-                    <Button
-                      onClick={() => window.location.assign("/mejoras/nueva")}
-                      className="gap-2 shadow-sm rounded-xl"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Nueva Mejora
-                    </Button>
+                    <>
+                      <VotingChartDialog proposals={proposals} ratings={globalRatings} />
+                      <Button
+                        onClick={() => window.location.assign("/mejoras/nueva")}
+                        className="gap-2 shadow-sm rounded-xl"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Nueva Mejora
+                      </Button>
+                    </>
                   )}
                   <Button variant="outline" size="icon" onClick={logout} className="rounded-xl shadow-sm text-muted-foreground" title="Cerrar sesion">
                     <LogOut className="h-4 w-4" />
