@@ -108,12 +108,17 @@ export function useRatings(user?: { username: string, role: string }) {
     return ratings.find(r => r.proposalId === proposalId)
   }, [ratings])
 
+  const getGlobalRating = useCallback((proposalId: string): Rating | undefined => {
+    return globalRatings.find(r => r.proposalId === proposalId)
+  }, [globalRatings])
+
 
   return {
     ratings,
     globalRatings,
     isLoaded,
     saveRating,
-    getRating
+    getRating,
+    getGlobalRating
   }
 }

@@ -38,7 +38,7 @@ export default function ProposalsPage() {
   const [isMock, setIsMock] = useState(false)
 
   const { isAuthenticated, isLoaded: authLoaded, logout, user } = useAuth()
-  const { ratings, globalRatings, isLoaded: ratingsLoaded, saveRating, getRating } = useRatings(user || undefined)
+  const { ratings, globalRatings, isLoaded: ratingsLoaded, saveRating, getRating, getGlobalRating } = useRatings(user || undefined)
   const isAdmin = user?.role === 'admin'
 
   useEffect(() => {
@@ -245,7 +245,11 @@ export default function ProposalsPage() {
                 <>
                   {isAdmin && (
                     <>
-                      <VotingChartDialog proposals={proposals} ratings={globalRatings} />
+                      <VotingChartDialog 
+                        proposals={proposals} 
+                        ratings={globalRatings} 
+                        onBarClick={handleCardClick}
+                      />
                       <Button
                         onClick={() => window.location.assign("/mejoras/nueva")}
                         className="gap-2 shadow-sm rounded-xl"
@@ -396,6 +400,7 @@ export default function ProposalsPage() {
               key={proposal.id}
               proposal={proposal}
               rating={getRating(proposal.id)}
+              globalRating={getGlobalRating(proposal.id)}
               onClick={() => handleCardClick(proposal)}
               onToggleVisibility={isAdmin ? (e) => handleToggleVisibility(e, proposal.id, proposal.visible !== false) : undefined}
             />

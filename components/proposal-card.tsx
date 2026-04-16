@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 interface ProposalCardProps {
   proposal: Proposal
   rating?: Rating
+  globalRating?: Rating
   onClick: () => void
   onToggleVisibility?: (e: React.MouseEvent) => void
 }
@@ -70,7 +71,7 @@ function getStatusIcon(status: string) {
   }
 }
 
-export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: ProposalCardProps) {
+export function ProposalCard({ proposal, rating, globalRating, onClick, onToggleVisibility }: ProposalCardProps) {
   const statusStyles = getStatusStyles(proposal.status)
   const { isAuthenticated, user } = useAuth()
   const isAdmin = user?.role === 'admin'
@@ -211,25 +212,47 @@ export function ProposalCard({ proposal, rating, onClick, onToggleVisibility }: 
           )}
         </div>
 
-        {rating && (
-          <div className={`mt-4 pt-4 border-t ${statusStyles.separator}`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                <span className="text-xs font-medium text-muted-foreground">Calificacion</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-20 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all"
-                    style={{ width: `${(rating.totalScore / 5) * 100}%` }}
-                  />
+        {(rating || (isAdmin && globalRating)) && (
+          <div className={`mt-4 pt-4 border-t ${statusStyles.separator} space-y-2`}>
+            {rating && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Tu Calificacion</span>
                 </div>
-                <span className="text-lg font-bold text-primary tabular-nums">
-                  {rating.totalScore.toFixed(1)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all"
+                      style={{ width: `${(rating.totalScore / 5) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-bold text-primary tabular-nums">
+                    {rating.totalScore.toFixed(1)}
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
+
+            {isAdmin && globalRating && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Users className="h-3.5 w-3.5 text-blue-500" />
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Promedio Global</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-500 rounded-full transition-all"
+                      style={{ width: `${(globalRating.totalScore / 5) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-bold text-blue-600 tabular-nums">
+                    {globalRating.totalScore.toFixed(1)}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

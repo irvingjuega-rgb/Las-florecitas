@@ -28,10 +28,12 @@ import { BarChart3, Filter } from "lucide-react"
 interface VotingChartDialogProps {
   proposals: Proposal[]
   ratings: Rating[]
+  onBarClick?: (proposal: Proposal) => void
 }
 
-export function VotingChartDialog({ proposals, ratings }: VotingChartDialogProps) {
+export function VotingChartDialog({ proposals, ratings, onBarClick }: VotingChartDialogProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [open, setOpen] = useState(false)
 
   const chartData = useMemo(() => {
     return proposals
@@ -44,11 +46,20 @@ export function VotingChartDialog({ proposals, ratings }: VotingChartDialogProps
           titulo: p.titulo,
           status: p.status,
           score: rating ? parseFloat(rating.totalScore.toFixed(2)) : 0,
+          originalProposal: p
         }
       })
       .filter(d => d.score > 0) // Solo mostrar los que tienen calificación
       .sort((a, b) => b.score - a.score)
   }, [proposals, ratings, statusFilter])
+
+  const handleBarClick = (data: any) => {
+    if (onBarClick && data && data.activePayload && data.activePayload[0]) {
+      const proposal = data.activePayload[0].payload.originalProposal;
+      onBarClick(proposal);
+      setOpen(false); // Close chart dialog after clicking a bar
+    }
+  }
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -72,9 +83,9 @@ export function VotingChartDialog({ proposals, ratings }: VotingChartDialogProps
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2 rounded-xl shadow-sm">
+        <Button variant="outline" className="gap-2 rounded-xl shadow-sm" onClick={() => setOpen(true)}>
           <BarChart3 className="h-4 w-4" />
           Grafica votaciones
         </Button>
@@ -105,6 +116,8 @@ export function VotingChartDialog({ proposals, ratings }: VotingChartDialogProps
                 data={chartData}
                 margin={{ top: 60, right: 30, left: 40, bottom: 60 }}
                 layout="vertical"
+                onClick={handleBarClick}
+                style={{ cursor: 'pointer' }}
               >
                 <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={true} />
                 <XAxis 
