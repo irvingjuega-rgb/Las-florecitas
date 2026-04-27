@@ -50,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             { user: "mjimenez", pass: "MJ123", role: "user" as const },
             { user: "hgasca", pass: "HG123", role: "user" as const },
             { user: "jlozano", pass: "JL123", role:"user" as const},
+            { user: "bgarcia", pass: "BG123", role:"user" as const},
         ]
 
         // Verificar si las credenciales existen en la lista
